@@ -1,0 +1,234 @@
+.buyer_wrap{
+    .play_explain{
+        padding: 16px 12px 3px;
+        color: #f2f2f2;
+        text-align: right;
+
+        image{
+            width:13px;
+            height: 14px;
+            margin-top: -2px;
+        }
+
+        text{
+            opacity: .3;
+            padding-left: 1px;
+        }
+    }
+
+    .goods_wrap{
+        margin-top: 6px;
+        width: 100%;
+        height: 130px;
+        position: relative;
+        
+
+        .tooltip_wrap{
+            position: absolute;
+            top: -20px;
+            left: 12px;
+            background: #f8ce4e;
+
+            .popper_arrow{
+                border-top-color: #f8ce4e;
+            }
+        }
+
+        .goods{
+            margin: 12px;
+            
+            .tag_wrap{
+                height: 61px;
+                position: relative;
+            }
+            .tag{
+                display: inline-block;
+                font-size: 12px;
+                padding: 4px 6px;
+                background: #481e6e;
+                color: #9474B3;
+                border-radius: 6px;
+                margin-right: 12px;
+                position: absolute;
+                right: 0;
+                bottom: 6px;
+            }
+
+            .goods_card{
+                padding: 0 6px;
+                height: 71px;
+                background: url(../../../image/card_default.png) right top no-repeat, url(../../../image/card_before.png) 0 0 no-repeat;
+                background-size: 100% 125px, 100% 100%;
+                border-radius: 12px;
+
+                .goods_image{
+                    width: 118px;
+                    height: 118px;
+                    border: 1px solid #e5e5e5;
+                    margin-top: -59px;
+                    display: inline-block;
+                    overflow: hidden;
+                    vertical-align: top;
+
+                    image{
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+
+                .goods_desc{
+                    width: 150px;
+                    margin-left: 3px;
+                    color: @color_primary;
+                    display: inline-block;
+
+                    .title{
+                        line-height: 21px;
+                    }
+                    
+                    .specification{
+                        padding-left: 6px;
+                        line-height: 16px;
+                    }
+                }
+
+                .goods_price{
+                    text-align: right;
+                    margin-top: -30px;
+
+                    .labe{
+                        line-height: 13px;
+                    }
+
+                    .price{
+                        line-height: 17px;
+                    }
+
+                    text, view{
+                        color: @color_info;
+                    }
+                }
+            }
+        }
+
+        .goods_video{
+            width: 100%;
+            height: 211px;
+            margin-top: 12px;
+            background: #999;
+        }
+    }
+
+    .guess_card_box{
+        width: 100%;
+        height: 104px;
+        position: fixed;
+        bottom: 67px;
+
+        .card_bg{
+            margin: 0 10px;
+            height: 100%;
+            background: url(../../../image/guess_01.png) no-repeat center;
+            background-size: 100%;
+        }
+
+        .btn{
+            width: 152px;
+            height: 152px;
+            line-height: 152px;
+            background: url('../../../image/guess_price_01.png') center no-repeat;
+            background-size: 100% 100%;
+            // opacity: 0.6;
+            border-radius: 50%;
+            position: absolute;
+            top: -24px;
+            left: 145px;
+            font-size: 20px;
+            color: #fff;
+            text-align: center;
+            
+
+            .tooltip_wrap{
+                width: 157px;
+                position: absolute;
+                top: -6px;
+                right: 56px;
+                text-align: right;
+
+                .popper_arrow{
+                    left: auto;
+                    right: 15px;
+                }
+            }
+
+            .count_down_img{
+                display: inline-block;
+                width: 58px;
+                height: 78px;
+            }
+        }
+
+        &.already{
+            .btn{
+                background: url('../../../image/guess_price_02.png') center no-repeat;
+                background-size: 100% 100%;
+            }
+        }
+
+        &.count_down{
+            .btn{
+                background: url('../../../image/guess_price_03.png') center no-repeat;
+                background-size: 100% 100%;
+            }
+        }
+
+        &.buying{
+            .card_bg{
+                background: url('../../../image/guess_02.png') no-repeat center;
+                background-size: 100% 100%;
+            }
+
+            .btn{
+                background: url('../../../image/guess_price_04.png') center no-repeat;
+            }
+        }
+        
+        &.order{
+            .card_bg{
+                background: url('../../../image/guess_03.png') no-repeat center;
+            }
+
+            .btn{
+                background: url('../../../image/guess_price_05.png') center no-repeat;
+            }
+        }
+        
+        .card_content{
+            height: 47px;
+            margin: 0 12px;
+            padding-top: 30px;
+
+            .price_box{
+                float: left;
+                width: 140px;
+                
+            }
+            
+            .desc{
+                line-height: 16px;   
+            }
+
+            .number_warp{
+                padding: 1px 0 0 14px;
+                line-height: 30px;
+            }
+
+            .time_box{
+                width: 80px;
+                float: right;
+                text-align: right;
+            }
+        }
+
+    }
+}

@@ -1,0 +1,15 @@
+{
+  "miniprogramRoot": "./dist",
+  "projectname": "mobile",
+  "description": "极限买手",
+  "appid": "touristappid",
+  "setting": {
+    "urlCheck": true,
+    "es6": false,
+    "postcss": false,
+    "minified": false,
+    "useCompilerModule": true,
+    "checkSiteMap": false
+  },
+  "compileType": "miniprogram"
+}

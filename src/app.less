@@ -1,0 +1,173 @@
+@import url('./variables.less');
+page{
+    font-family: "PingFangSC-Medium, PingFang SC, SimHei";
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #F2F2F2;
+    margin: 0;
+    padding: 0;
+    letter-spacing: 0.6px;
+}
+
+.page_bg{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: url("./image/bg_left_top.png") 0 0 no-repeat, url("./image/bg_right_bottom.png") bottom right no-repeat, linear-gradient(-45deg, #B948FF 0%, #723DD9 100%);
+    background-size: 288px 231px,338px 185px, 100%;
+}
+
+image{
+    width: 100%;
+    height: 100%;
+    display: inline-block;    
+    vertical-align: middle;
+}
+
+.main{
+    height: calc(100% - 88px);
+}
+
+.text_size_16{
+    font-size: 16px;
+    color: @color_primary;
+}
+.text_size_14{
+    font-size: 14px;
+    color: @color_primary;
+}
+.text_size_14_by{
+    font-size: 14px;
+    color: @color_primary;
+    opacity: .6;
+}
+.text_size_12{
+    font-size: 12px;
+    color: @color_primary;
+}
+.text_size_12_by{
+    font-size: 12px;
+    color: @color_primary;
+    opacity: .6;
+}
+.text_size_10{
+    font-size: 10px;
+    color: @color_primary;
+}
+
+.text_size_10_by{
+    font-size: 10px;
+    color: @color_primary;
+    opacity: .6;
+}
+
+.text_overflow{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: hidden;
+}
+
+.clearfix {
+    &:after {
+      visibility: hidden;
+      display: block;
+      font-size: 0;
+      content: " ";
+      clear: both;
+      height: 0;
+    }
+}
+
+@font-face{
+    font-family: 'Alibaba';
+    src: url('./fonts/阿里巴巴普惠体-Heavy.otf');
+    font-family: 'AlibabaBold';
+    src: url('./fonts/阿里巴巴普惠体-Bold.otf');
+}
+
+.ali_font{
+    font-family: Alibaba;
+}
+
+.ali_font_bold{
+    font-family: AlibabaBold;
+}
+
+.font_spacing_06{
+    letter-spacing: 0.6px;
+}
+
+.price_before{
+    vertical-align: bottom;
+    display: contents;
+}
+
+.tabbar_nav{
+    height: 46px;
+    display: flex;
+    border-bottom: 1px solid #e3e3e3;
+    border-top: 1px solid #e3e3e3;
+    background: #fff;
+    
+    .item{
+        height: 22px;
+        line-height: 22px;
+        font-size: 12px;
+        padding: 0 6px;
+        margin: 12px 0 12px 12px;
+        color: @color_primary;
+        opacity: 0.6;
+
+        &.active{
+            font-size: 16px;
+            opacity: 1;
+            position: relative;
+
+
+            .bg{
+                width: 100%;
+                height: 12px;
+                border-radius: 6px;
+                background: @color_info;
+                margin-top: -10px;
+                padding: 0 6px 0 6px;
+                margin-left: -6px;
+            }
+        }
+    }
+}
+
+
+.tooltip_box{
+    display: inline-block;
+    border-radius: 4px;
+    padding: 3px 12px;
+    z-index: 2000;
+    font-size: 10px;
+    line-height: 14px;
+    min-width: 10px;
+    word-wrap: break-word;
+    background: #F8A446;
+    color: #31113D;
+    position: relative;
+    border-radius: 6px;
+
+    &.popper_opcity{
+        opacity: .6;
+    }
+
+    .popper_arrow{
+        position: absolute;
+        display: block;
+        width: 0;
+        height: 0;
+        border-color: transparent;
+        border-style: solid;
+        left: 15px;
+        bottom: -10px;
+        border-top-color: #F8A446;
+        border-bottom-width: 0;
+        border-width: 6px;
+    }
+}
