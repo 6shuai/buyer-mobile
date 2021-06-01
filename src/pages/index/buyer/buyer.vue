@@ -52,7 +52,11 @@
                 </view>
 
                 <view class="goods_video">
-
+                    <video 
+                        :autoplay="false" 
+                        :loop="true"
+                        src="https://quiz.xfengjing.com/video/2021/05/28/37a2aa0f-827c-4b06-9da9-2c7837b20b38.mp4">
+                    </video>
                 </view>
 
             </view>
@@ -68,7 +72,10 @@
             >
                 <view class="card_bg">
                     <view class="card_content clearfix">
+
+
                         <view class="price_box overflow">
+                            <view class="buy_watermark" v-if="currentState == 4">已抢到</view>
                             <view class="desc text_size_12_by">
                                 <text>{{ 3 > currentState ? '猜价奖金' : currentState == 3 ? '实时价格' : '抢购价格' }}</text>
                             </view>
@@ -86,7 +93,7 @@
                         </view>
 
                         <view 
-                            class="time_box overflow">
+                            class="time_box text_overflow">
                             <view class="desc text_size_12_by"><text>{{ 3 > currentState ? '开始抢购' : '已优惠' }}</text></view>
                             <view class="ali_font_bold number_warp text_size_16">{{ resData.beginTime.split(' ')[1] }}</view>
                         </view>
@@ -127,6 +134,7 @@
         <guess-price 
             ref="guessPrice"
             @goodsGuessPrice="goodsGuessPrice"
+
         ></guess-price>
 
         <!-- 确认支付 -->
@@ -160,7 +168,7 @@ export default {
         const panicBuyRule = ref(null)
         const store = useStore()
         const { priceFormat } = mixin()
-        const { ctx } = getCurrentInstance()
+        const instance = getCurrentInstance()
 		const headHeight = computed(() => {
 			return store.state.headerHeight
 		})
@@ -179,17 +187,20 @@ export default {
             //显示猜价 窗口
             handleClickBuyBtn(){
                 if(state.currentState == 0){
-                    state.guessPrice.handleShowPage()
+                    // state.guessPrice.handleShowPage()
+                    state.buyPage.handleShowPage()
                 }else if(state.currentState == 3){
                     state.buyPage.handleShowPage()
                 }else if(state.currentState == 4){
-                    console.log('查看订单')
+                    wx.navigateTo({
+                        url: '/pages/user/order/detail'
+                    })
                 }
             },
 
             //猜价
             goodsGuessPrice(price){
-                ctx.$socket.socketSendMessage({
+                instance.appContext.config.globalProperties.$socket.socketSendMessage({
                     id: socketId.guessPrice,
                     price: price
                 })

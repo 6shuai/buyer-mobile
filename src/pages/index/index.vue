@@ -3,11 +3,12 @@
 		<page-head page="home" />
 
 		<view class="main" :style="{ marginTop: headHeight + 'px' }">
-			<banner :style="{ transform: `translateY(${bannerTop}px)`, transition: 'all .1s ease-out' }"  />
+			<banner :style="{ transform: `translateY(${bannerTop}px)`, transition: 'all .1s ease' }"  />
 
 			<scroll-view
 				:style="{ height: mainHeight + 'px' }"
 				:scrollY="true"
+				:upper-threshold="20"
 				:scrollWithAnimation="false"
 				:scrollTop="scrollTop"
 				@scroll="handleChangeScroll"
@@ -58,20 +59,19 @@ export default {
 
 				//下滑
 				if(state.goodsScrollTop > s){
-					state.bannerTop = state.touchTop;
-					// console.log(s)
+					// state.bannerTop = state.touchTop;
+					state.bannerTop = state.touchTop >= state.bannerHeight ? -state.bannerHeight + (state.touchTop - s) : -state.touchTop + (state.touchTop - s)
 				}else{
 					state.touchTop = s;
 					state.bannerTop = -s;
-					// console.log(s)
 				}
 
 				state.goodsScrollTop = s
 
 				if(state.bannerTop >= 0){
 					state.bannerTop = 0;
-				}else if(state.bannerTop <= -142){
-					state.bannerTop = -142;
+				}else if(state.bannerTop <= -state.bannerHeight){
+					state.bannerTop = -state.bannerHeight;
 				}
 
 				//显示回到顶部
@@ -85,6 +85,7 @@ export default {
 			//滚动到顶部时触发
 			handleToUpper(){
 				console.log('到顶部了')
+				state.bannerTop = 0;
 				store.dispatch('setShowGoTopBtn', false)
 				// state.scrollTop = state.goodsScrollTop + 223
 				// state.scrollStop = true;
@@ -122,6 +123,7 @@ export default {
 			scrollTop: 0,       //滚动条位置
 			goodsScrollTop: 0,
 			bannerTop: 0,
+			bannerHeight: 142,   //banner  高度
 			touchTop: 0,   //上划滚动条位置
 			goodsList,
 			...methods,

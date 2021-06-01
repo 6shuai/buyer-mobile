@@ -74,7 +74,7 @@
                             <view class="state" v-for="(block, bIndex) in 6" :key="bIndex">
                                 <view 
                                     class="state_image"
-                                    :class="{ state_image_success: bIndex < item.correctDigit }"
+                                    :class="{ state_image_success: item.correctDigit == 1 ? bIndex == 2 : bIndex < item.correctDigit }"
                                 ></view>
                                 <view class="dot" v-if="bIndex == 3">.</view>
                             </view>

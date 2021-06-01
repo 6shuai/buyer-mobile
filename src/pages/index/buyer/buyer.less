@@ -94,7 +94,7 @@
 
                 .goods_price{
                     text-align: right;
-                    margin-top: -30px;
+                    margin-top: -25px;
 
                     .labe{
                         line-height: 13px;
@@ -115,7 +115,14 @@
             width: 100%;
             height: 211px;
             margin-top: 12px;
-            background: #999;
+            background: #000;
+            z-index: 0;
+
+            video{
+                width: 100%;
+                height: 100%;
+                z-index: 0;
+            }
         }
     }
 
@@ -185,33 +192,48 @@
         &.buying{
             .card_bg{
                 background: url('../../../image/guess_02.png') no-repeat center;
-                background-size: 100% 100%;
+                background-size: 100%;
             }
-
+            
             .btn{
                 background: url('../../../image/guess_price_04.png') center no-repeat;
+                background-size: 100% 100%;
             }
         }
         
         &.order{
             .card_bg{
                 background: url('../../../image/guess_03.png') no-repeat center;
+                background-size: 100%;
             }
 
             .btn{
                 background: url('../../../image/guess_price_05.png') center no-repeat;
+                background-size: 100% 100%;
             }
         }
         
         .card_content{
             height: 47px;
-            margin: 0 12px;
-            padding-top: 30px;
+            padding-top: 23px;
+
+            .buy_watermark{
+                position: absolute;
+                top: -5px;
+                left: 0;
+                font-size: 40px;
+                transform: rotate(-15deg);
+                color: #eb9b42;
+                opacity: 0.4;
+            }
 
             .price_box{
                 float: left;
                 width: 140px;
-                
+                padding: 4px 0 4px 12px;
+                margin-left: 2px;
+                position: relative;
+                overflow: hidden;
             }
             
             .desc{
@@ -227,6 +249,11 @@
                 width: 80px;
                 float: right;
                 text-align: right;
+                margin: 6px 14px 0 0;
+
+                .number_warp{
+                    padding-left: 0;
+                }
             }
         }
 

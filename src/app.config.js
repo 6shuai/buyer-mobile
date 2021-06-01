@@ -5,6 +5,7 @@ export default {
       'pages/rank/rank',
       'pages/user/user',
       'pages/user/order/order',
+      'pages/user/order/detail',
       'pages/user/subscription/subscription',
     ],
     tabBar: {

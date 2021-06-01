@@ -1,7 +1,4 @@
-import { ref, computed } from "vue";
-
 export default function () {
-    const count = ref(0);
 
     //抢购时间 和 当前时间比较
     const findGoodsState = (date) => {

@@ -3,6 +3,8 @@
 		
 		<view v-if="goodsLoading" class="goods_loading">加载中...</view>
 
+		<!-- 纯文字内容 -->
+
 		<!-- <view
 			class="goods_item goods_text_item clearfix"
 		>
@@ -16,7 +18,7 @@
 					<text class="time_text">一行白鹭上青天</text>
 				</view>				
 			</view>
-		</view> -->
+		</view> -->	
 
 		<view
 			class="goods_item clearfix"
@@ -53,10 +55,10 @@
 									<image :src="item.goodsCover" />
 								</view>
 								<view class="goods_right_text">
-									<view class="title overflow"
+									<view class="title text_overflow"
 										>{{ item.goodsName }}</view
 									>
-									<view class="desc text_size_12_by overflow"
+									<view class="desc text_size_12_by text_overflow"
 										>{{ item.goodsDescription }}</view
 									>
 									<view class="bonus_wrap">
@@ -69,7 +71,7 @@
 											>
 											<text
 												class="ali_font_bold price_num"
-												>{{ item.guessRules && item.guessRules[0] ? item.guessRules[0].award : '0' }}</text
+												>{{ item.totalGuessAward  || 0 }}</text
 											>
 											<text>元</text>
 										</view>
@@ -84,7 +86,7 @@
 											v-if="item.status == 0"
 											class="end"
 										>极限成交价</text>
-										<view class="overflow" v-else>
+										<view class="text_overflow" v-else>
 											<text class="label"
 												>官方售价</text
 											>
@@ -168,6 +170,11 @@
 										src="../../../image/btn_start.png" 
 										@tap.stop.prevent="handleJoin(item)"
 									/>
+									<!-- <image 
+										mode="heightFix" 
+										src="../../../image/btn_start.png" 
+										@tap.stop.prevent="handleJoin(item)"
+									/> -->
 								</view>
 							</view>
 						</view>
@@ -208,7 +215,7 @@ export default {
 		const { findGoodsState, formatTime, priceFormat } = mixin()
 		const store = useStore()
 
-		const { ctx } = getCurrentInstance()
+		const instance = getCurrentInstance()
 
 		//商品列表 加载更多
 		const goodsDataPage = computed(() => {
@@ -250,7 +257,7 @@ export default {
 				return
 			}
 
-			ctx.$socket.socketSendMessage({
+			instance.appContext.config.globalProperties.$socket.socketSendMessage({
 				id: socketId.getGoodsList,
 				baseIndex: type == 'top' ? data[0].index : data[data.length-1].index,   // 基于哪个索引请求
 				count: type == 'top' ? -10 : 10       // 请求多少个抢购，根据一屏显示的内容来，别一次太多，负数向前，正数向后
@@ -289,8 +296,9 @@ export default {
 			handleGoodsLoadMore,
 		})
 
+		//列表滑到顶部 或 底部 加载更多的数据
 		watch(goodsDataPage, (newProps, oldProps) => {
-			console.log('分页加载的数据------->', newProps)
+			console.log('获取加载的数据------->', newProps)
 			goodsPage(newProps)
 			
 		})

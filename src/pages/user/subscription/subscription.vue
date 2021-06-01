@@ -1,5 +1,6 @@
 <template>
-    <view class="order_wrap">
+    <view class="subscription_wrap">
+
         <view class="tabbar_nav">
             <view 
                 v-for="(item, index) in tabbarList"
@@ -12,11 +13,9 @@
             </view>
         </view>
 
-        <view class="order_list">
-            <view class="order_item">
-                <view class="message text_size_10">
-                    订单将在5天12小时13分21秒后失效，请尽快完善物流信息
-                </view>
+        <view class="subscription_list">
+
+            <view class="item">
                 <view class="content">
                     <view class="goods clearfix">
                         <view class="goods_info">
@@ -48,52 +47,10 @@
                     </view>
 
                     <view class="btn_wrap">
-                        <view class="btn">
-                            <text>完善物流信息</text>
-                            <text class="desc">已支付343.32元订金</text>
-                        </view>
-                    </view>
-
-                </view>
-            </view>
-
-            <view class="order_item">
-                <view class="message text_size_10">
-                    订单将在5天12小时13分21秒后失效，请尽快完善物流信息
-                </view>
-                <view class="content">
-                    <view class="goods clearfix">
-                        <view class="goods_info">
-                            <image src="" />
-                            <view class="label">
-                                <view class="goods_title overflow text_size_16">任天堂 Swich</view>
-                                <view class="specification text_size_10">国行红蓝版</view>
-                            </view>
-                        </view>
-
-                        <view class="right_price">
-                            <view class="original text_size_12">￥2,099</view>
-                            <view class="price_b">
-                                <view class="discounts">
-                                    已优惠
-                                    <text class="ali_font">￥663.58</text>
-                                </view>
-                                <view class="number_warp text_size_16">
-                                    <text class="price_num ali_font_bold"
-                                        >1,680</text
-                                    >
-                                    <text class="price_after ali_font_bold text_size_14"
-                                        >.00</text
-                                    >
-                                </view>
-                            </view>
-                        </view>
-
-                    </view>
-
-                    <view class="btn_wrap">
-                        <view class="btn">
-                           支付尾款
+                        <view
+                            @tap="cancelSubscription" 
+                            class="btn">
+                           取消订阅
                         </view>
                     </view>
 
@@ -110,9 +67,27 @@
 import { reactive, toRefs } from 'vue'
 export default {
     setup(){
+
+        //取消订阅
+        const cancelSubscription = () => {
+            wx.showModal({
+                title: '提示',
+                content: '确定要取消该商品订阅?',
+                success (res) {
+                    if (res.confirm) {
+                        console.log('用户点击确定')
+                    } else if (res.cancel) {
+                        console.log('用户点击取消')
+                    }
+                }
+            })
+        }
+
+
         const state = reactive({
-            tabbarList: ['开场预约', '返场预约'],
+            tabbarList: ['开场预约', '返场订阅'],
             currentTabIndex: 0,
+            cancelSubscription
         })
 
         return toRefs(state)
@@ -123,7 +98,7 @@ export default {
 <style lang="less">
     @import url('../../../variables.less');
 
-    .order_wrap{
+    .subscription_wrap{
         .tabbar{
             width: 100%;
             height: 46px;
@@ -144,10 +119,10 @@ export default {
             }
         }
 
-        .order_list{
+        .subscription_list{
             width: 100%;
 
-            .order_item{
+            .item{
                 margin-top: 6px;
                 background: #fff;
 

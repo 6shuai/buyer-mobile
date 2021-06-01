@@ -149,10 +149,11 @@ export default {
             text-align: center;
             
             .introduce{
-                color: #f2f2f2;
+                color: #31113d;
                 font-size: 12px;
                 float: left;
                 width: 60px;
+                opacity: 0.3;
             }
             
             .title_name{

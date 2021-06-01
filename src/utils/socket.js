@@ -27,12 +27,10 @@ export default {
     
             success: res => {
     
-                
             },
     
             fail: fail => {
-    
-    
+
             },
     
         });

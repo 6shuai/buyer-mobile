@@ -262,15 +262,15 @@ export default {
 
         .btn_state{
             width: 100%;
-            height: 39px;
+            height: 59px;
             position: absolute;
             bottom: 60px;
             left: 0;
             text-align: center;
 
             image{
-                height: 39px;
-                border-radius: 12px;
+                height: 59px;
+                border-radius: 16px;
                 display: inline-block;
             }
         }

@@ -91,7 +91,10 @@
 
                     </view>
 
-                    <view class="btn_wrap">
+                    <view 
+                        class="btn_wrap"
+                        @tap="handleClickBtn"
+                    >
                         <view class="btn">
                            支付尾款
                         </view>
@@ -110,9 +113,15 @@
 import { reactive, toRefs } from 'vue'
 export default {
     setup(){
+        //订单按钮
+        const handleClickBtn = () => {
+
+        }
+
         const state = reactive({
             tabbarList: ['全部', '待完善', '待领取/收货', '已完成'],
             currentTabIndex: 0,
+            handleClickBtn
         })
 
         return toRefs(state)

@@ -5,6 +5,7 @@
         >
             <view 
                 class="bar_image"
+                :animation="progressAnim"
                 :style="{ height: barHeight + '%' }"
             >
                 <image class="progress" src="../../../../image/progress_02.png" />
@@ -60,6 +61,7 @@
 
 <script>
 import { reactive, toRefs, computed } from 'vue'
+
 export default {
     props: ['currentPrice', 'guessPrice'],
     setup(props) {
@@ -79,7 +81,8 @@ export default {
 
         const state = reactive({
             barHeight: 100,
-            guessPosition
+            guessPosition,
+            progressAnim: '',     //进度条动画
         })
 
         // setTimeout(() => {
@@ -91,6 +94,16 @@ export default {
             //     state.barHeight -= 0.1
             // }, 200);
         // }, 100);
+        // setTimeout(() => {
+        //     let animation = wx.createAnimation({
+        //         duration: 50000,
+        //         timingFunction: 'ease-in-out',
+        //     })
+
+        //     animation.height(0).step()
+
+        //     state.progressAnim = animation.export()
+        // }, 2000);
 
         return toRefs(state)
     }
@@ -109,6 +122,7 @@ export default {
         background: url('../../../../image/progress_01.png') bottom no-repeat;
         background-size: 100% 100%;
         border-radius: 8px;
+        z-index: 99;
 
         .bar{
             width: 16px;

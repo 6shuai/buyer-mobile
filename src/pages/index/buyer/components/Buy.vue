@@ -11,13 +11,13 @@
             <view class="goods">
                 <image src="" />
                 <view class="goods_name text_size_16">
-                    <view class="name text_size_16">任天堂 Swich</view>
+                    <view class="name text_size_16 text_overflow">任天堂 Swich</view>
                     <view class="specification text_size_12_by">国行红蓝版</view>
                 </view>
             </view>
 
-            <view class="buy_success">抢购成功</view>
-            <!-- <view class="buy_fail">抢购失败</view> -->
+            <view v-if="payState == 'success'" class="buy_success">抢购成功</view>
+            <view v-if="payState == 'error'" class="buy_fail">抢购失败</view>
             
             <view class="dialog_price_content">
                 <view class="desc text_size_12">实时抢购价：</view>
@@ -82,15 +82,21 @@
             </view>
 
             <!-- 支付之前 -->
-            <view class="buy_before" v-if="false">
+            <view class="buy_before">
                 <!-- 领取方式 -->
                 <view class="payment_wrap">
                     <view class="text_t" text_size_12_by>请选择该宝贝的领取方式</view>
                     
                     <view class="mode">
-                        <view class="item" v-for="item in 2" :key="item">
+                        <view
+                            class="item" 
+                            v-for="item in 2" 
+                            :key="item"
+                            @tap="payment = item"
+                            :class="{ active: payment==item }"
+                        >
                             <view class="checkbox">
-                                <view class="checked"></view>
+                                <view class="checked" v-show="payment==item"></view>
                             </view>
                             <view class="content">
                                 <view class="type text_size_14_by">门店领取</view>
@@ -123,7 +129,7 @@
                 
                 <view class="buy_tip text_size_10_by">确认支付表示同意以上购买规则</view>
                 <view class="buy_btn_wrap">
-                    <view class="buy_btn">
+                    <view class="buy_btn" @tap="handlePay">
                         <view class="btn_text">确认支付</view>
                         <view class="price">
                             <view class="number_warp">
@@ -144,7 +150,10 @@
             </view>
 
             <!-- 支付成功后 -->
-            <view class="buy_success_wrap">
+            <view 
+                class="buy_success_wrap"
+                v-if="payState == 'success'"
+            >
                 <view class="item" v-for="item in 11" :key="item">
                     <view class="label">领取方式</view>
                     <view class="value">门店领取</view>
@@ -163,10 +172,13 @@
 </template>
 
 <script>
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, getCurrentInstance } from 'vue'
+import { socketId } from '../../../../utils/socketId'
 
 export default {
     setup(props) {
+        const instance = getCurrentInstance()
+
         const handleShowPage = () => {
             state.showDialog = true
         }
@@ -175,10 +187,26 @@ export default {
             state.showDialog = false
         }
 
+        //确认支付
+        const handlePay = () => {
+            // instance.appContext.config.globalProperties.$socket.socketSendMessage({
+            //     id: socketId.buy,
+            //     bidPrice: 100,// 抢购的金额
+            //     paidPrice: 100, // 支付成功的金额
+            // })
+
+            wx.showToast({
+                title: '支付成功'
+            })
+        }
+
         const state = reactive({
+            payment: 1,      //领取方式
+            payState: '',    //支付状态
             showDialog: false,
             handleShowPage,
-            handleClosePage
+            handleClosePage,
+            handlePay
         })
 
 
@@ -229,6 +257,7 @@ export default {
 
         .goods{
             display: flex;
+            margin-left: 24px;
 
             image{
                 width: 118px;
@@ -369,6 +398,17 @@ export default {
                         .label{
                             line-height: 13px;
                         }
+
+
+                    }
+
+                    &.active{
+                        .content view{
+                            opacity: 1;
+                        }   
+                        .right_price view, .right_price text{
+                            opacity: 1;
+                        }
                     }
                 }
             }
@@ -409,6 +449,7 @@ export default {
 
                 .price{
                     padding-top: 1px;
+                    line-height: 1;
                     text{
                         color: #fff;
                     }
