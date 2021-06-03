@@ -5,7 +5,7 @@
         </view>
         <view class="dialog_box">
             <view class="title">
-                <text class="introduce">怎么玩</text>
+                <!-- <text class="introduce">怎么玩</text> -->
                 <text class="title_name text_size_16">极限猜价</text>
             </view>
             

@@ -3,7 +3,6 @@
 		<page-head page="home" />
 
 		<view class="main" :style="{ marginTop: headHeight + 'px' }">
-			<banner :style="{ transform: `translateY(${bannerTop}px)`, transition: 'all .1s ease' }"  />
 
 			<scroll-view
 				:style="{ height: mainHeight + 'px' }"
@@ -15,10 +14,13 @@
 				@scrolltoupper="handleToUpper"
 				@scrolltolower="handleToLower"
 			>
+				<banner :style="{ transform: `translateY(${bannerTop}px)`, transition: 'all .1s ease' }"  />
+
 				<goods 
 					ref="goodsList"
 					@setScrollTop="setScrollTop"
 				></goods>
+				
 			</scroll-view>
 
 		</view>

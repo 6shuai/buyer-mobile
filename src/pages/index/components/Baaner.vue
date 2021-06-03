@@ -42,7 +42,7 @@ export default {
 
 <style lang="less">
 .banner_box{
-    position: absolute;
+    position: sticky;
     top: 0;
     left: 0;
     z-index: 9999;

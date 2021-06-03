@@ -16,7 +16,6 @@
                 </view>
             </view>
 
-
             <view class="content">
                 <view class="game_time">
                     <text>{{ resData.beginTime }}</text>
@@ -52,9 +51,8 @@
             </view>
 
             <view class="rule_box">
-                <rule :data="resData"></rule>
+                <rule :data="resData" :height="pageHeight- 290"></rule>
             </view>
-
 
         </view>
 
@@ -79,9 +77,10 @@
 </template>
 
 <script>
-import { reactive, toRefs, onMounted } from 'vue'
+import { reactive, toRefs, onMounted, getCurrentInstance, watch, computed, nextTick } from 'vue'
 import Rule from '../../../components/Rule'
 import { useStore } from 'vuex'
+import { socketId } from '../../../utils/socketId'
 
 export default {
     components: {
@@ -89,13 +88,31 @@ export default {
     },
     setup(props) {
         const store = useStore()
+        const instance = getCurrentInstance()
+
+        //抢购详情
+		const goodsDetail = computed(() => {
+			return store.state.goodsDetail
+		})
+
         onMounted(() => {
             
         })
 
         const handleShowPage = data => {
+            instance.appContext.config.globalProperties.$socket.socketSendMessage({
+				id: socketId.getGoodsDetail,
+				auctionId: data.id
+			})
+
+            wx.showLoading({
+                title: '加载中',
+            })
+            
+
             state.resData = data
             state.showDialog = true
+                
         }
 
         const handleClosePage = () => {
@@ -118,7 +135,24 @@ export default {
 			})
 		}
 
+        //抢购详情
+		watch(goodsDetail, (newProps, oldProps) => {
+			console.log('抢购详情的数据------->', newProps)
+			wx.hideLoading()
+            state.resData.guessRules = newProps.guessRules
+
+            nextTick(() => {
+                //创建节点选择器
+                var query = wx.createSelectorQuery();
+                query.select('.buy_dialog_wrap').boundingClientRect()
+                query.exec(function (res) {
+                    state.pageHeight = res[0].height
+                })
+            })
+		})
+
         const state = reactive({
+            pageHeight: 600,
             resData: {},
             showDialog: false,
             handleShowPage,
@@ -264,7 +298,7 @@ export default {
             width: 100%;
             height: 59px;
             position: absolute;
-            bottom: 60px;
+            bottom: 40px;
             left: 0;
             text-align: center;
 

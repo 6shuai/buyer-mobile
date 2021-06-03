@@ -95,7 +95,9 @@
                         <view 
                             class="time_box text_overflow">
                             <view class="desc text_size_12_by"><text>{{ 3 > currentState ? '开始抢购' : '已优惠' }}</text></view>
-                            <view class="ali_font_bold number_warp text_size_16">{{ resData.beginTime.split(' ')[1] }}</view>
+                            <!-- 已优惠 -->
+                            <view v-if="currentState >= 3" class="ali_font_bold number_warp text_size_16">10%</view>
+                            <view v-else class="ali_font_bold number_warp text_size_16">{{ resData.beginTime.split(' ')[1] }}</view>
                         </view>
                     </view>
                 </view>
@@ -126,6 +128,7 @@
         <!-- 价格进度条 -->
         <price-progress 
             v-if="resData" 
+            ref="priceProgress"
             :currentPrice="resData.marketValue"
             :guessPrice="guessPriceNum"
         ></price-progress>
@@ -155,7 +158,7 @@ import PriceProgress from './components/Progress'
 import GuessPrice from './components/GuessPrice'
 import Buy from './components/Buy'
 import HowToPlay from './components/HowToPlay'
-import { reactive, ref, toRefs, computed, onMounted, getCurrentInstance } from "vue"
+import { reactive, ref, toRefs, computed, onMounted, getCurrentInstance, watch } from "vue"
 import { useStore } from "vuex"
 import mixin from '../../../mixins'
 import { countDown } from './components/CountDown'
@@ -166,29 +169,44 @@ export default {
         const buyPage = ref(null)
         const guessPrice = ref(null)
         const panicBuyRule = ref(null)
+        const priceProgress = ref(null)
         const store = useStore()
-        const { priceFormat } = mixin()
+        const { formatTime, priceFormat } = mixin()
         const instance = getCurrentInstance()
+
 		const headHeight = computed(() => {
 			return store.state.headerHeight
 		})
 
-        wx.showLoading({
-            title: '加载中',
+        //抢购详情
+        const panicBuyDetail = computed(() => {
+            return store.state.panicBuyDetail
         })
 
         onMounted(() => {
-            console.log('load')
-            state.resData = store.state.goodsDetail
-            wx.hideLoading()
+            methods.init()
         })
 
         const methods = {
+            //参加抢购
+            init(){
+                wx.showLoading({
+                    title: '加载中',
+                })
+                let pages = getCurrentPages()
+                let currentPage = pages[pages.length - 1]
+                let id = currentPage.options.id
+                console.log('id-----', id)
+                instance.appContext.config.globalProperties.$socket.socketSendMessage({
+                    id: socketId.joinBuy,
+                    auctionId: id
+                })
+            },
+
             //显示猜价 窗口
             handleClickBuyBtn(){
                 if(state.currentState == 0){
-                    // state.guessPrice.handleShowPage()
-                    state.buyPage.handleShowPage()
+                    state.guessPrice.handleShowPage()
                 }else if(state.currentState == 3){
                     state.buyPage.handleShowPage()
                 }else if(state.currentState == 4){
@@ -207,17 +225,30 @@ export default {
                 state.guessPriceNum = priceFormat(price)
 
                 state.currentState = 1
+
+                setTimeout(() => {
+                    methods.buyCountDown()
+                }, 2000);
             },
 
             //开始倒计时
             buyCountDown(){
-                currentState = 2
+                state.currentState = 2
                 let num = 9;
                 var timer = setInterval(() => {
                     num -= 1;
                     if(num == 0) {
                         clearInterval(timer)
+                        
+                        //倒计时结束 开始抢购
+                        state.currentState = 3
+                        //实时价格
+                        state.guessPriceNum = state.resData.marketValue
+                        //抢购进度条
+                        state.priceProgress.setProgressHeight()
+
                         return
+                        
                     }
                     state.countImg = countDown['countDown'+num]
                 }, 1000);
@@ -229,6 +260,15 @@ export default {
             }
         }
         
+        watch(panicBuyDetail, (newProps, oldProps) => {
+            state.resData = {
+                ...newProps,
+                beginTime:formatTime(newProps.beginTime),
+				marketValue:priceFormat(newProps.marketValue),
+				priceDeclineRate:priceFormat(newProps.priceDeclineRate)
+            }
+            wx.hideLoading()
+        })
 
 		const state = reactive({
             resData: undefined,
@@ -238,6 +278,7 @@ export default {
             buyPage,
             guessPrice,
             panicBuyRule,
+            priceProgress,
             headHeight,
             ...methods
 		});

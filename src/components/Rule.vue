@@ -1,103 +1,105 @@
 <template>
-    <view class="rule_warp" v-if="resData">
-        <view class="tabbar_nav">
-            <view 
-                v-for="(item, index) in ['极限抢购', '极限猜价']"
-                :key="index"
-                class="item"
-                @tap="currentTabIndex=index"
-                :class="{ active: currentTabIndex==index }">
-                <text>{{item}}</text>
-                <view class="bg"></view>
+    <scroll-view :style="{ height: height +'px' }" :scrollY="true">
+        <view class="rule_warp" v-if="resData">
+            <view class="tabbar_nav">
+                <view 
+                    v-for="(item, index) in ['极限抢购', '极限猜价']"
+                    :key="index"
+                    class="item"
+                    @tap="currentTabIndex=index"
+                    :class="{ active: currentTabIndex==index }">
+                    <text>{{item}}</text>
+                    <view class="bg"></view>
+                </view>
             </view>
-        </view>
 
-        <!-- 抢购规则 -->
-        <view v-show="currentTabIndex==0" class="rule_item">
-            <view class="rule_content">
-                <view class="list">
-                    <view class="rule_image">
-                        <view class="number_warp">
-                            <text class="price_before ali_font_bold text_size_10"
-                                >￥</text
-                            >
-                            <text class="price_num ali_font_bold text_size_12"
-                                >{{ resData.marketValue.int }}</text
-                            >
-                            <text class="price_after ali_font_bold text_size_10"
-                                >{{ resData.marketValue.decimals }}</text
-                            >
-                        </view>
-                        <view class="number_warp number_warp_b">
-                            <text class="price_before ali_font_bold text_size_10"
-                                >￥</text
-                            >
-                            <text class="price_num ali_font_bold text_size_12"
-                                >????</text
-                            >
-                            <text class="price_after ali_font_bold text_size_10"
-                                >.?</text
-                            >
-                        </view>
-                    </view>
-                    <view class="desc right">
-                        抢购开始后，抢购商品从<text class="hightlight ali_font_bold">￥{{ resData.marketValue.int }}{{ resData.marketValue.decimals }}</text>
-                        开始降价，每秒降价一次，每分钟累计降价<text class="hightlight ali_font_bold">￥{{ resData.priceDeclineRate.int }}{{ resData.priceDeclineRate.decimals }}</text>。
-                    </view>
-                </view>
-                <view class="list">
-                    <view class="desc">
-                        在商品降价的过程中，你可以在任意时间以当前的价格购买本商品。每场抢购商品的数量未知，商品一经售罄，抢购立即停止。
-                    </view>
-                    <view class="rule_image rule_02 right">
-                    </view>
-                </view>
-                <view class="list">
-                    <view class="rule_image rule_03">
-                    </view>
-                    <view class="desc right">
-                        你可以选择在开始库存充足时尽快的拍下你心动的商品，也可以抱着博一博的心态等待商品到达一个令人无法抗拒的价格，这一切取决于你自己。
-                    </view>
-                </view>
-                <view class="list">祝你在「极限买手」玩得开心！</view>
-            </view>
-        </view>
-
-        <!-- 猜价规则 -->
-        <view v-show="currentTabIndex==1" class="rule_item">
-            <view class="rule_content">
-                <view class="explain">抢购开始前，竞猜本场的极限成交价（本场最后一单的成交价）；所有猜对的人根据以下规则平分竞猜奖金。</view>
-
-                <view class="list" v-for="item in resData.guessRules" :key="item">
-                    <view class="left">
-                        <view class="example">
-                            <view class="state" v-for="(block, bIndex) in 6" :key="bIndex">
-                                <view 
-                                    class="state_image"
-                                    :class="{ state_image_success: item.correctDigit == 1 ? bIndex == 2 : bIndex < item.correctDigit }"
-                                ></view>
-                                <view class="dot" v-if="bIndex == 3">.</view>
+            <!-- 抢购规则 -->
+            <view v-show="currentTabIndex==0" class="rule_item">
+                <view class="rule_content">
+                    <view class="list">
+                        <view class="rule_image">
+                            <view class="number_warp">
+                                <text class="price_before ali_font_bold text_size_10"
+                                    >￥</text
+                                >
+                                <text class="price_num ali_font_bold text_size_12"
+                                    >{{ resData.marketValue.int }}</text
+                                >
+                                <text class="price_after ali_font_bold text_size_10"
+                                    >{{ resData.marketValue.decimals }}</text
+                                >
+                            </view>
+                            <view class="number_warp number_warp_b">
+                                <text class="price_before ali_font_bold text_size_10"
+                                    >￥</text
+                                >
+                                <text class="price_num ali_font_bold text_size_12"
+                                    >????</text
+                                >
+                                <text class="price_after ali_font_bold text_size_10"
+                                    >.?</text
+                                >
                             </view>
                         </view>
-                        <view class="success_num">
-                            猜对任意<text class="hightlight">{{ item.correctDigit || 0 }}位</text>
+                        <view class="desc right">
+                            抢购开始后，抢购商品从<text class="hightlight ali_font_bold">￥{{ resData.marketValue.int }}{{ resData.marketValue.decimals }}</text>
+                            开始降价，每秒降价一次，每分钟累计降价<text class="hightlight ali_font_bold">￥{{ resData.priceDeclineRate.int }}{{ resData.priceDeclineRate.decimals }}</text>。
                         </view>
                     </view>
-                    <view class="bonus">
-                        平分<text class="hightlight ali_font_bold">{{ item.award || 0 }}</text>元奖金
+                    <view class="list">
+                        <view class="desc">
+                            在商品降价的过程中，你可以在任意时间以当前的价格购买本商品。每场抢购商品的数量未知，商品一经售罄，抢购立即停止。
+                        </view>
+                        <view class="rule_image rule_02 right">
+                        </view>
                     </view>
+                    <view class="list">
+                        <view class="rule_image rule_03">
+                        </view>
+                        <view class="desc right">
+                            你可以选择在开始库存充足时尽快的拍下你心动的商品，也可以抱着博一博的心态等待商品到达一个令人无法抗拒的价格，这一切取决于你自己。
+                        </view>
+                    </view>
+                    <view class="list">祝你在「极限买手」玩得开心！</view>
                 </view>
-
             </view>
-        </view>
 
-    </view>
+            <!-- 猜价规则 -->
+            <view v-show="currentTabIndex==1" class="rule_item">
+                <view class="rule_content">
+                    <view class="explain">抢购开始前，竞猜本场的极限成交价（本场最后一单的成交价）；所有猜对的人根据以下规则平分竞猜奖金。</view>
+
+                    <view class="list" v-for="item in resData.guessRules" :key="item">
+                        <view class="left">
+                            <view class="example">
+                                <view class="state" v-for="(block, bIndex) in 6" :key="bIndex">
+                                    <view 
+                                        class="state_image"
+                                        :class="{ state_image_success: item.correctDigit == 1 ? bIndex == 2 : bIndex < item.correctDigit }"
+                                    ></view>
+                                    <view class="dot" v-if="bIndex == 3">.</view>
+                                </view>
+                            </view>
+                            <view class="success_num">
+                                猜对任意<text class="hightlight">{{ item.correctDigit || 0 }}位</text>
+                            </view>
+                        </view>
+                        <view class="bonus">
+                            平分<text class="hightlight ali_font_bold">{{ item.award || 0 }}</text>元奖金
+                        </view>
+                    </view>
+
+                </view>
+            </view>
+
+        </view>
+    </scroll-view>
 </template>
 
 <script>
 import { reactive, toRefs } from 'vue'
 export default {
-    props: ['data'],
+    props: ['data', 'height'],
     setup(props) {
         const state = reactive({
             currentTabIndex: 0,

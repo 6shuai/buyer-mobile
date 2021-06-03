@@ -62,10 +62,18 @@ export default {
                 case socketId.goodsTotalCount:  //抢购列表总条数
                     store.dispatch('setGoodsTotalCount', data.amount)
                     break;
-                case socketId.goodsList:   //抢购列表  登录成功后返回
-                case socketId.goodsPaging:    //抢购页滑到顶部 或 底部时 加载更多返回
+                case socketId.goodsList:   //抢购列表  登录成功后返回  或者  抢购页滑到顶部 或 底部时 加载更多返回
                     if(!data.auctionList || !data.auctionList.length) return
-                    store.dispatch('setGoodsData', data.auctionList)
+                    store.dispatch('setGoodsPageData', data.auctionList)
+                    break;
+                case socketId.goodsDetail:   //手机点击卡片  返回的抢购详情
+                    store.dispatch('setGoodsDetail', data)
+                    break;
+                case socketId.panicBuyDetail:  //抢购页的抢购详情
+                    store.dispatch('setPanicBuyDetail', data)
+                    break;
+                case socketId.placeList:      //场所列表
+                    store.dispatch('setPlaceList', data.placeList)
                     break;
                 default:
                     break;

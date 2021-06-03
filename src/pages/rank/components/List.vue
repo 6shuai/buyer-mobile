@@ -7,7 +7,12 @@
             :class="index % 2 ? 'rank_item_a' : 'rank_item_b'"
         >
             <view class="left">
-                <view class="serial_number" v-if="index > 2">{{ index + 1 }}</view>
+                <view 
+                    class="serial_number" 
+                    :class="{ serial_number_small: index + 1 > 99 }"
+                    v-if="index > 2"
+                >{{ index + 1 }}
+                </view>
                 <image class="head_image" src="" />
                 <text class="name">马冬梅</text>
             </view>
@@ -78,6 +83,10 @@ export default {
                     padding-right: 3px;
                     line-height: 33px;
                     vertical-align: top;
+
+                    &.serial_number_small{
+                        font-size: 12px;
+                    }
                 }
 
                 .head_image{

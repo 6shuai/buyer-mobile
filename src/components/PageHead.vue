@@ -8,7 +8,7 @@
             <view v-if="currentPage=='home'" class="location">
                 <view class="current_location text_overflow">
                     <image class="icon_location" src="../image/icon_location.png" />
-                    <text>上海市 宝山万达广场</text>
+                    <text>北京市 通州万达广场</text>
                 </view>
                 <view class="toggle_location">
                     <image

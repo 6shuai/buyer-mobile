@@ -64,14 +64,14 @@
                                 </view>
                             </view>
                             <view class="border"></view>
-                            <view class="item">
+                            <view class="item" @tap="handleNavigateTo('./help/help')">
                                 <view class="title">
                                     <image src="../../image/my_icon_03.png" />
                                     服务帮助
                                 </view>
                             </view>
                             <view class="border"></view>
-                            <view class="item">
+                            <view class="item" @tap="handleNavigateTo('./about/about')">
                                 <view class="title">
                                     <image src="../../image/my_icon_04.png" />
                                     关于我们

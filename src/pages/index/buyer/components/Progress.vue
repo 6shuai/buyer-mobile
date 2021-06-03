@@ -27,10 +27,10 @@
                     >￥</text
                 >
                 <text class="price_num ali_font_bold text_size_16"
-                    >{{ currentPrice.int }}</text
+                    >{{ realTimePrice.int }}</text
                 >
                 <text class="price_after ali_font_bold text_size_12"
-                    >{{ currentPrice.decimals }}</text
+                    >{{ realTimePrice.decimals }}</text
                 >
             </view>
         </view>
@@ -79,31 +79,34 @@ export default {
             }
         })
 
+        //设置抢购进度条长度
+        const setProgressHeight = () => {
+            let animation = wx.createAnimation({
+                duration: 50000,
+                timingFunction: 'ease-in-out',
+            })
+
+            animation.height(0).step()
+
+            state.progressAnim = animation.export()
+
+            let num = 50
+            let timer = setInterval(() => {
+                num -= 1
+                if(num == 0){
+                    clearInterval(timer)
+                }
+                // this.realTimePrice = 
+            }, 1000);
+        }
+
         const state = reactive({
             barHeight: 100,
             guessPosition,
             progressAnim: '',     //进度条动画
+            realTimePrice: props.currentPrice,  //实时价格
+            setProgressHeight
         })
-
-        // setTimeout(() => {
-            // let timer = setInterval(() => {
-            //     if(state.barHeight == 0){
-            //         clearInterval(timer)
-            //         return
-            //     }
-            //     state.barHeight -= 0.1
-            // }, 200);
-        // }, 100);
-        // setTimeout(() => {
-        //     let animation = wx.createAnimation({
-        //         duration: 50000,
-        //         timingFunction: 'ease-in-out',
-        //     })
-
-        //     animation.height(0).step()
-
-        //     state.progressAnim = animation.export()
-        // }, 2000);
 
         return toRefs(state)
     }

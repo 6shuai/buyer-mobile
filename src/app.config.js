@@ -7,6 +7,8 @@ export default {
       'pages/user/order/order',
       'pages/user/order/detail',
       'pages/user/subscription/subscription',
+      'pages/user/help/help',
+      'pages/user/about/about',
     ],
     tabBar: {
       "color": "#7A7E83",

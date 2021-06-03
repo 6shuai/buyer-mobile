@@ -107,7 +107,7 @@
 											<text class="text_size_10 origin">起</text>
 										</view>
 									</view>
-									<view class="show_price depreciate">
+									<view class="show_price depreciate text_overflow">
 										<view 
 											v-if="item.status == 0"
 											class="end">
@@ -116,10 +116,10 @@
 													>￥</text
 												>
 												<text class="price_num ali_font_bold"
-													>125</text
+													>{{ item.marketValue.int }}</text
 												>
 												<text class="price_after ali_font_bold"
-													>.00</text
+													>{{ item.marketValue.decimals }}</text
 												>
 											</view>
 											<view class="number_warp original_price">
@@ -127,10 +127,10 @@
 													>￥</text
 												>
 												<text class="price_num ali_font_bold"
-													>125</text
+													>{{ item.marketValue.int }}</text
 												>
 												<text class="price_after ali_font_bold"
-													>.00</text
+													>{{ item.marketValue.decimals }}</text
 												>
 											</view>
 										</view>
@@ -191,7 +191,7 @@
 </template>
 
 <script>
-import { reactive, toRefs, ref, onMounted, computed, nextTick, getCurrentInstance, watch } from "vue"
+import { reactive, toRefs, ref, computed, getCurrentInstance, watch } from "vue"
 import GoodsDetail from './GoodsDetail'
 import mixin from '../../../mixins'
 import { socketId } from '../../../utils/socketId'
@@ -229,9 +229,9 @@ export default {
 
 		//马上参加
 		const handleJoin = (item) => {
-			store.dispatch('setGoodsDetail', item)
+			// store.dispatch('setGoodsDetail', item)
 			wx.navigateTo({
-				url: './buyer/buyer'
+				url: `./buyer/buyer?id=${item.id}`
 			})
 		}
 
@@ -267,6 +267,7 @@ export default {
 
 		//返回的抢购商品数据
 		const goodsPage = data => {
+			let type = 'top'
 			state.goodsLoading = false
 			data.forEach(item => {
 				item.beginTime = formatTime(item.beginTime)
@@ -278,12 +279,17 @@ export default {
 			if(!state.goodsList[0] || data[0].index > state.goodsList[0].index){
 				//滑动到底部加载的数据
 				state.goodsList = state.goodsList.concat(data)
+				type = 'bottom'
 			}else{
 				//滑动到顶部加载的数据
 				state.goodsList = data.concat(state.goodsList)
+				type = 'top'
 				//设置滚动条位置
 				emit('setScrollTop', data.length)
 			}
+
+			//存储抢购列表全部数据
+			store.dispatch('setAllGoodsList', { type, data })
 		}
 		
 		const state = reactive({
