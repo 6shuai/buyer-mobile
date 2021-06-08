@@ -20,7 +20,9 @@
 
         <!-- 当前价格 -->
         <view 
-            class="current_price">
+            class="current_price"
+            :style="{ top: currentPriceTop + '%' }"
+        >
             <view class="arrow"></view>
             <view class="number_warp">
                 <text class="price_before ali_font_bold text_size_12"
@@ -60,20 +62,29 @@
 </template>
 
 <script>
-import { reactive, toRefs, computed } from 'vue'
+import { reactive, toRefs, computed, onUnmounted } from 'vue'
+import { useStore } from 'vuex'
+import mixin from '../../../../mixins'
 
 export default {
-    props: ['currentPrice', 'guessPrice'],
+    props: ['goodsData', 'guessPrice'],
     setup(props) {
+        const store = useStore()
+        const { priceFormat } = mixin()
+        //currentPrice              抢购价格
+        //priceDeclineRate          每分钟下降金额
+        //priceDecline              每次下降多少钱
+        //priceDeclineFrequence     多少时间下降一次
+        let { currentPrice, priceDeclineRate, priceDeclineFrequence, priceDecline, marketValue } = props.goodsData 
+        priceDeclineFrequence = priceDeclineFrequence ? priceDeclineFrequence : 1
+
+        //猜价价格  在进度条出现的位置
         const guessPosition = computed(() => {
-            let price = props.currentPrice.int + props.currentPrice.decimals
-            let guess = props.guessPrice.int + props.guessPrice.decimals
+            let price = currentPrice.full
+            let guess = props.guessPrice.full
             if(price && guess){
-                let parseInt1 = price.replace(',', '')
-                let parseInt2 = guess.replace(',', '')
-                
-                let num = Number(parseInt2) / Number(parseInt1) * 100
-                return num <=3 ? 3 : num >=100 ? 100 : num
+                let num = Number(guess) / Number(price) * 100
+                return num
             }else{
                 return 0
             }
@@ -81,31 +92,72 @@ export default {
 
         //设置抢购进度条长度
         const setProgressHeight = () => {
-            let animation = wx.createAnimation({
-                duration: 50000,
-                timingFunction: 'ease-in-out',
+            state.barHeight = (currentPrice.full / marketValue.full) * 100
+            setTimeout(() => {
+                // let animation = wx.createAnimation({
+                //     duration: (currentPrice.full / priceDeclineRate.full) * 60000,
+                //     timingFunction: 'ease-in-out',
+                // })
+                // animation.height(0).step()
+    
+                // state.progressAnim = animation.export()
+
+                var query = wx.createSelectorQuery();
+                query.select('.bar').boundingClientRect()
+                query.exec(function (res) {
+                    state.progressBarHeight = res[0].height
+                })
+            }, 200);
+
+
+            setRealTimePrice(currentPrice.full, priceDeclineRate, priceDeclineFrequence)
+        }
+
+        //实时价格
+        const setRealTimePrice = (price, priceDeclineRate, priceDeclineFrequence) => {
+            clearTimeout(state.timer)
+            let newPrice = price - priceDecline
+            state.realTimePrice = priceFormat(newPrice)
+            store.dispatch('setRealTimePrice', state.realTimePrice)
+
+            //实时价格 标签 位置
+            var query = wx.createSelectorQuery();
+            query.select('.bar_image').boundingClientRect()
+            query.exec(function (res) {
+                if(!res[0] || !res[0].height) return
+                state.currentPriceTop = 100 - res[0].height / state.progressBarHeight * 100
+                if(state.currentPriceTop >= 100) {
+                    state.currentPriceTop = 100
+                    clearTimeout(state.timer)
+                }
             })
 
-            animation.height(0).step()
 
-            state.progressAnim = animation.export()
-
-            let num = 50
-            let timer = setInterval(() => {
-                num -= 1
-                if(num == 0){
-                    clearInterval(timer)
-                }
-                // this.realTimePrice = 
-            }, 1000);
+            state.timer = setTimeout(() => {
+                setRealTimePrice(newPrice, priceDeclineRate, priceDeclineFrequence)
+            }, priceDeclineFrequence * 1000);
         }
+
+        //抢购结束
+        const gameOver = () => {
+            clearInterval(state.timer)
+        }
+
+        //页面销毁
+        onUnmounted(() => {
+            clearTimeout(state.timer)
+        })
 
         const state = reactive({
             barHeight: 100,
             guessPosition,
-            progressAnim: '',     //进度条动画
-            realTimePrice: props.currentPrice,  //实时价格
-            setProgressHeight
+            progressBarHeight: 0,  //进度条原始高度 px
+            progressAnim: '',      //进度条动画
+            realTimePrice: currentPrice,  //实时价格
+            currentPriceTop: 0,
+            timer: undefined,
+            setProgressHeight,
+            gameOver
         })
 
         return toRefs(state)
@@ -182,13 +234,13 @@ export default {
             line-height: 22px;
             padding: 3px 12px;
             background: #5FB890;
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
+            border-radius: 4px;
             position: absolute;
             z-index: 0;
             top: 100;
             left: 45px;
             transition: all .1 ease-in;
+            margin-top: -15px;
 
             text{
                 color: #fff;
@@ -213,7 +265,7 @@ export default {
             z-index: 99;
             border-top-right-radius: 14px;
             border-bottom-right-radius: 14px;
-            padding-right: 5px;
+            padding: 3px 5px;
 
             .arrow{
                 border-right-color: @color_darkgray;

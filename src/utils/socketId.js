@@ -7,6 +7,8 @@ export const socketId = {
     getGoodsList: 3008,            //获取抢购列表
     getGoodsDetail: 3010,          //获取抢购详情
     joinBuy: 3011,                 //参加抢购请求
+    goBackSubscribeGoods: 3012,    //返场订阅请求
+    preview: 3013,                 //预览抢购
 
 
     // 返回的消息
@@ -15,10 +17,12 @@ export const socketId = {
     placeList: 7003,               //场所列表通知
     goodsDetail: 7004,             //首页点击卡片 显示抢购详情 奖励规则
     panicBuyDetail: 7005,          //抢购详情
+    goodsListState: 7006,          //抢购列表 当天的抢购开始或者结束会通知
     
     userInfo: 7011,                //登录成功 返回用户信息
     loginError: 7012,              //返回的失败消息
     pong: 7019,                    //心跳回应
     gameState: 7023,               //游戏抢购页的状态
+    previewResponse: 7024,         //预览抢购 返回的消息
     buyerError: 7027,              //竞猜价格 或 返回失败消息
 }

@@ -2,20 +2,23 @@ export default function () {
 
     //抢购时间 和 当前时间比较
     const findGoodsState = (date) => {
+        let state = 0;      
+        if(!date) return state
         let time = formatTime(date)
         let currentDate = currentTime()
         let gDay = new Date(time.split(' ')[0]).getTime() / 1000;
         let day = new Date(currentDate.split(' ')[0]).getTime() / 1000;
         let gTime = new Date(time).getTime() / 1000;
+        let cTime = new Date(currentDate).getTime() / 1000;
 
         //0 已结束   1未开始   2即将开始  3进行中 
-        let state = 0;      
         
         //抢购日期是否是今天
         if(gDay == day){
             state = 2
-            if(gTime >= currentDate){
-                // 已结束
+            if(gTime <= cTime){
+                // 进行中
+                state = 3
             }else{
                 //即将开始
             }
@@ -31,6 +34,7 @@ export default function () {
     }
 
     function formatTime(timestamp, type) {
+        if(!timestamp) return
         var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
         var Y = date.getFullYear() + '-';
         var M = addPreZero(date.getMonth() + 1) + '-';
@@ -125,7 +129,8 @@ export default function () {
         }
         return {
             int: result.split('.')[0],
-            decimals: '.' + result.split('.')[1]
+            decimals: '.' + result.split('.')[1],
+            full: Number(result.replace(',', ''))
         };
     }
 

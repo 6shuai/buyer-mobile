@@ -131,6 +131,8 @@ export default {
 
                 .hightlight{
                     background: #f3c38e;
+                    padding: 0 2px;
+                    border-radius: 4px;
                 }
 
                 .rule_image{

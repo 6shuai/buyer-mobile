@@ -15,6 +15,7 @@ export default {
 
         wx.showLoading({
             title: '加载中',
+            mask: true
         })
 
         that.webSocketTask = wx.connectSocket({
@@ -54,7 +55,7 @@ export default {
                     that.loginSuccess(data.userId)
                     break;
                 case socketId.loginError:  //登录失败
-                    that.loginError()
+                    that.showError()
                     break;
                 case socketId.pong:        //心跳回应
                     that.pongTime = new Date().getTime()
@@ -73,7 +74,20 @@ export default {
                     store.dispatch('setPanicBuyDetail', data)
                     break;
                 case socketId.placeList:      //场所列表
-                    store.dispatch('setPlaceList', data.placeList)
+                    store.commit('SET_PLACE_LIST', data.placeList)
+                    break;
+                case socketId.gameState:      //游戏抢购状态
+                    //游戏的状态，0预热阶段，1竞猜阶段，2开始倒计时，3出价阶段
+                    store.commit('SET_GAME_PANIC_BUY_STATE', data.gameState)
+                    break;
+                case socketId.goodsListState:  //抢购列表 当天的游戏开始和结束状态
+                    store.commit('SET_CURRENT_DAY_GAME_STATE', data)
+                    break;
+                case socketId.buyerError:         //返回失败消息
+                    that.showError(data.message)
+                    break;
+                case socketId.previewResponse:   //预览  返回的预览id
+                    store.commit('SET_PREVIEW_ID', data.auctionId)
                     break;
                 default:
                     break;
@@ -162,10 +176,9 @@ export default {
     },
 
     //登录失败
-    loginError(){
-        console.log('加载失败')
+    showError(msg = '加载失败'){
         wx.showToast({
-            title: '加载失败',
+            title: msg,
             icon: 'none',
             duration: 2000
         })

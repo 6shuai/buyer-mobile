@@ -7,12 +7,12 @@
             class="close_btn">
             <image src="../../../../image/close_icon.png" />
         </view>
-        <view class="dialog_box">
+        <view class="dialog_box" v-if="goodsData">
             <view class="goods">
-                <image src="" />
+                <image :src="goodsData.goods.cover" />
                 <view class="goods_name text_size_16">
-                    <view class="name text_size_16 text_overflow">任天堂 Swich</view>
-                    <view class="specification text_size_12_by">国行红蓝版</view>
+                    <view class="name text_size_16 text_overflow">{{ goodsData.goods.displayName }}</view>
+                    <view class="specification text_size_12_by">{{ goodsData.goods.description }}</view>
                 </view>
             </view>
 
@@ -25,25 +25,21 @@
                     <view class="price_before ali_font_bold"
                         >￥</view
                     >
-                    <view class="num_item">
-                        <text>9</text>
+                    <view 
+                        v-for="(item, index) in realTimePrice.int"
+                        :key="index"
+                        :class="{num_item: item != ','}" 
+                    >   
+                        <text v-if="item==','">,</text>
+                        <text v-else>{{item}}</text>
                     </view>
-                    ,
-                    <view class="num_item">
-                        <text>9</text>
-                    </view>
-                    <view class="num_item">
-                        <text>9</text>
-                    </view>
-                    <view class="num_item">
-                        <text>9</text>
-                    </view>
-                    .
-                    <view class="num_item">
-                        <text>9</text>
-                    </view>
-                    <view class="num_item">
-                        <text>9</text>
+                   <view 
+                        v-for="(item, index) in realTimePrice.decimals"
+                        :key="index"
+                        :class="{num_item: item != '.'}" 
+                    >   
+                        <text v-if="item=='.'">.</text>
+                        <text v-else>{{item}}</text>
                     </view>
                 </view>
 
@@ -55,10 +51,10 @@
                                 >￥</text
                             >
                             <text class="price_num ali_font_bold text_size_12_by"
-                                >1,680</text
+                                >{{ price.int }}</text
                             >
                             <text class="price_after ali_font_bold"
-                                >.00</text
+                                >{{ price.decimals }}</text
                             >
                         </view>
                     </view>
@@ -70,10 +66,10 @@
                                 >￥</text
                             >
                             <text class="price_num ali_font_bold text_size_12"
-                                >1,680</text
+                                >{{ economizePrice.int }}</text
                             >
                             <text class="price_after ali_font_bold"
-                                >.00</text
+                                >{{ economizePrice.decimals }}</text
                             >
                         </view>
                     </view>
@@ -82,7 +78,11 @@
             </view>
 
             <!-- 支付之前 -->
-            <view class="buy_before">
+            <scroll-view 
+                :scrollY="true"
+                class="buy_before"
+                :style="{ height: addressHeight + 'px' }"
+            >
                 <!-- 领取方式 -->
                 <view class="payment_wrap">
                     <view class="text_t" text_size_12_by>请选择该宝贝的领取方式</view>
@@ -90,31 +90,37 @@
                     <view class="mode">
                         <view
                             class="item" 
-                            v-for="item in 2" 
-                            :key="item"
-                            @tap="payment = item"
-                            :class="{ active: payment==item }"
+                            v-for="(item, index) in addressList" 
+                            :key="item.id"
+                            @tap="paymentIndex = index"
+                            :class="{ active: paymentIndex==index }"
                         >
                             <view class="checkbox">
-                                <view class="checked" v-show="payment==item"></view>
+                                <view class="checked" v-show="paymentIndex==index"></view>
                             </view>
                             <view class="content">
-                                <view class="type text_size_14_by">门店领取</view>
-                                <view class="desc text_size_12_by">五角场合生汇 3F 顺电</view>
+                                <view class="type text_size_14_by">
+                                    <text v-if="item.receiveType == 1">门店领取({{ index + 1 }})</text>
+                                    <text v-else>快递寄送</text>
+                                </view>
+                                <view class="desc text_size_12_by">{{ item.address }}</view>
                             </view>
                             <view class="right_price">
-                                <view class="label text_size_10_by">支付定金</view>
+                                <!-- // 支付方式，1全款，2定金 -->
+                                <view class="label text_size_10_by">{{ goodsData.paymentMethod == 2 && item.receiveType==1 ? '支付定金' : '支付全款' }}</view>
                                 <view class="price">
                                     <view class="number_warp">
                                         <text class="price_before ali_font_bold text_size_10_by"
                                             >￥</text
                                         >
-                                        <text class="price_num ali_font_bold text_size_12_by"
-                                            >1,680</text
-                                        >
-                                        <text class="price_after ali_font_bold text_size_10_by"
-                                            >.00</text
-                                        >
+                                        <text class="price_num ali_font_bold text_size_12_by">
+                                            <text v-if="goodsData.paymentMethod == 2 && item.receiveType == 1">{{ depositPrice.int }}</text>
+                                            <text v-else>{{ realTimePrice.int }}</text>
+                                        </text>
+                                        <text class="price_after ali_font_bold text_size_10_by">
+                                            <text v-if="goodsData.paymentMethod == 2 && item.receiveType == 1">{{ depositPrice.decimals }}</text>
+                                            <text v-else>{{ realTimePrice.decimals }}</text>
+                                        </text>
                                     </view>
                                 </view>
                             </view>
@@ -123,8 +129,12 @@
                 </view>
 
                 <!-- 说明 -->
-                <view class="buy_desc">
-                    支付￥384.73定金，以￥1923.64价格预定该宝贝，支付后前往指定门店领取该宝贝，领取时支付剩余尾款。90天内未领取该宝贝则本订单失效，所支付定金不予退还。
+                <!-- 线下支付方式  paymentMethod: // 支付方式，1全款，2定金   receiveType 1 线下  2线上  -->
+                <view class="buy_desc" v-if="addressList[paymentIndex].receiveType == 1">
+                    支付￥{{ goodsData.paymentMethod == 2 ? depositPrice.full : 0 }}定金，以￥{{ realTimePrice.full }}价格预定该宝贝，支付后前往指定门店领取该宝贝，领取时支付剩余尾款。{{ goodsData.orderExpiration }}天内未领取该宝贝则本订单失效，所支付定金不予退还。
+                </view>
+                <view class="buy_desc" v-else>
+                    付款后请尽快完善物流信息。90天内未完善物流信息该订单将失效；所付款项的20%（￥{{ (realTimePrice.full * 0.2).toFixed(2) }}）将作为违约金支付，剩余部分按原支付方式退回。
                 </view>
                 
                 <view class="buy_tip text_size_10_by">确认支付表示同意以上购买规则</view>
@@ -136,18 +146,20 @@
                                 <text class="price_before ali_font_bold text_size_10"
                                     >￥</text
                                 >
-                                <text class="price_num ali_font_bold text_size_12"
-                                    >1,680</text
-                                >
-                                <text class="price_after ali_font_bold text_size_10"
-                                    >.00</text
-                                >
+                                <text class="price_num ali_font_bold text_size_12">
+                                    <text v-if="addressList[paymentIndex].receiveType == 1 && goodsData.paymentMethod == 2">{{ depositPrice.int }}</text>
+                                    <text v-else>{{ realTimePrice.int }}</text>
+                                </text>
+                                <text class="price_after ali_font_bold text_size_10">
+                                    <text v-if="addressList[paymentIndex].receiveType == 1 && goodsData.paymentMethod == 2">{{ depositPrice.decimals }}</text>
+                                    <text v-else>{{ realTimePrice.decimals }}</text>
+                                </text>
                             </view>
                         </view>
                     </view>
                 </view>
 
-            </view>
+            </scroll-view>
 
             <!-- 支付成功后 -->
             <view 
@@ -172,12 +184,50 @@
 </template>
 
 <script>
-import { reactive, toRefs, getCurrentInstance } from 'vue'
+import { reactive, toRefs, getCurrentInstance, computed, watch, onMounted } from 'vue'
 import { socketId } from '../../../../utils/socketId'
+import { useStore } from 'vuex'
+import mixin from '../../../../mixins'
 
 export default {
+    props: ['goodsData', 'price'],
     setup(props) {
         const instance = getCurrentInstance()
+        const store = useStore()
+        const { priceFormat } = mixin()
+
+        onMounted(() => {
+            state.addressHeight = wx.getSystemInfoSync().windowHeight * 0.8 - 260
+
+            let temp = false
+            state.addressList = []
+            props.goodsData.pickUpAddresses.forEach(item => {
+                // receiveType, // 领取方式，1线下，2线上
+                item.receiveType = 1
+                if(item.deliverType == 1){
+                    temp = true
+                }
+                state.addressList.push(item)
+            })
+
+            if(temp){
+                state.addressList.push({
+                    address: '抢购成功后完善快递信息',
+                    receiveType: 2
+                })
+            }
+        })
+
+        //实时价格
+        const realTimePrice = computed(() => {
+            state.economizePrice = priceFormat(props.price.full - store.getters.getRealTimePrice.full)
+            return store.getters.getRealTimePrice
+        })
+
+        //支付定金
+        const depositPrice = computed(() => {
+            return priceFormat(state.realTimePrice.full * ( props.goodsData.depositRatio / 100 ))
+        })
 
         const handleShowPage = () => {
             state.showDialog = true
@@ -187,23 +237,45 @@ export default {
             state.showDialog = false
         }
 
-        //确认支付
+        //确认支付  请求购买
         const handlePay = () => {
-            // instance.appContext.config.globalProperties.$socket.socketSendMessage({
-            //     id: socketId.buy,
-            //     bidPrice: 100,// 抢购的金额
-            //     paidPrice: 100, // 支付成功的金额
-            // })
+            let { id, receiveType } = state.addressList[state.paymentIndex]
+            let paidPrice = receiveType == 1 && props.goodsData.paymentMethod == 2 ? state.depositPrice.full : state.realTimePrice.full
+
+            instance.appContext.config.globalProperties.$socket.socketSendMessage({
+                id: socketId.buy,
+                bidPrice:state.realTimePrice.full,// 抢购的金额
+                paidPrice: paidPrice, // 支付成功的金额
+                receiveType: receiveType, // 领取方式，1线下，2线上
+                pickUpAddressId: id, // 如果是线下领取，这里发领取地址id
+            })
+
+            console.log({
+                bidPrice: state.realTimePrice.full,
+                paidPrice,
+                receiveType,
+                pickUpAddressId: id
+            })
 
             wx.showToast({
                 title: '支付成功'
             })
         }
 
+        // watch(realTimePrice, (newProps, oldProps) => {
+        //     console.log(newProps)
+        // })
+
         const state = reactive({
-            payment: 1,      //领取方式
+            paymentIndex: 0,      //领取方式
             payState: '',    //支付状态
+            realTimePrice,  //实时价格
+            economizePrice: {}, //已省金额
+            depositPrice,   //定金金额
             showDialog: false,
+            addressList: [],   //领取地址列表
+            addressHeight: 0,
+            params: {},
             handleShowPage,
             handleClosePage,
             handlePay
@@ -337,6 +409,7 @@ export default {
 
         .buy_before{
             padding-top: 22px;
+            height: 360px;
         }
 
         .payment_wrap{

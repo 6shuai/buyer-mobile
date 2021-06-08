@@ -10,6 +10,8 @@
 				:upper-threshold="20"
 				:scrollWithAnimation="false"
 				:scrollTop="scrollTop"
+				:enhanced="true"
+				:show-scrollbar="false"
 				@scroll="handleChangeScroll"
 				@scrolltoupper="handleToUpper"
 				@scrolltolower="handleToLower"
