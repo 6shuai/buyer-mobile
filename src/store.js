@@ -14,6 +14,8 @@ const state = {
 	realTimePrice: {},        //实时抢购价 
 	previewId: null,          //预览id
 	goodsGuessPrice: {},      //抢购猜价  价格
+	buySuccessMember: {},     //抢购成功的用户信息
+	wxPaymentInfo: {},        //微信支付 下单接口返回的prepay_id
 }
 
 const mutations = {
@@ -74,6 +76,16 @@ const mutations = {
 	//抢购的 猜价 价格
 	SET_GOODS_GUESS_PRICE(state, data){
 		state.goodsGuessPrice = data
+	},
+
+	//抢购成功 信息
+	SET_BUY_SUCCESS_MEMBER(state, data){
+		state.buySuccessMember = data
+	},
+
+	//抢购返回 微信支付id
+	SET_WX_PAYMENT_INFO(state, data){
+		state.wxPaymentInfo = data
 	}
 
 }

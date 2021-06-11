@@ -34,7 +34,7 @@
                         <view class="text">猜价阶段</view>
                     </view>
                     <view class="timeline-item">
-                        <view class="time">{{ resData.beginTime.split(' ')[1] }}</view>
+                        <view class="time">{{ findNewTime(resData.beginTime.split(' ')[1], resData.guessTime) }}</view>
                         <view class="line">
                             <view class="dot"></view>
                         </view>
@@ -81,14 +81,18 @@ import { reactive, toRefs, onMounted, getCurrentInstance, watch, computed, nextT
 import Rule from '../../../components/Rule'
 import { useStore } from 'vuex'
 import { socketId } from '../../../utils/socketId'
+import { showToast } from '../../../utils/index'
+import mixin from '../../../mixins/index'
 
 export default {
+    props: ['detaileHandleJoin'],
     components: {
         Rule
     },
-    setup(props) {
+    setup(props, { emit }) {
         const store = useStore()
         const instance = getCurrentInstance()
+        const { findNewTime } = mixin()
 
         //抢购详情
 		const goodsDetail = computed(() => {
@@ -106,8 +110,7 @@ export default {
 			})
 
             wx.showLoading({
-                title: '加载中',
-                mask: true
+                title: '加载中'
             })
             
 
@@ -122,18 +125,16 @@ export default {
 
         //马上参加
 		const handleJoin = (item) => {
-			store.dispatch('setGoodsDetail', item)
-			wx.navigateTo({
-				url: './buyer/buyer'
-			})
+			// store.dispatch('setGoodsDetail', item)
+			// wx.navigateTo({
+			// 	url: './buyer/buyer'
+			// })
+            emit('detaileHandleJoin', item)
 		}
 
 		//订阅
 		const handleSubscription = () => {
-			wx.showToast({
-				title: '订阅成功',
-				duration: 2000
-			})
+			showToast('订阅成功', 'success')
 		}
 
         //抢购详情
@@ -141,6 +142,7 @@ export default {
 			console.log('抢购详情的数据------->', newProps)
 			wx.hideLoading()
             state.resData.guessRules = newProps.guessRules
+            state.resData.guessTime = newProps.guessTime
 
             nextTick(() => {
                 //创建节点选择器
@@ -159,7 +161,8 @@ export default {
             handleShowPage,
             handleClosePage,
             handleJoin,
-            handleSubscription
+            handleSubscription,
+            findNewTime
         })
 
 

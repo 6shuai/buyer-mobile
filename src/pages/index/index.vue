@@ -16,7 +16,7 @@
 				@scrolltoupper="handleToUpper"
 				@scrolltolower="handleToLower"
 			>
-				<banner :style="{ transform: `translateY(${bannerTop}px)`, transition: 'all .1s ease' }"  />
+				<banner :style="{ transform: `translateY(${bannerTop}px)`, transition: 'all .5s ease' }"  />
 
 				<goods 
 					ref="goodsList"
@@ -52,8 +52,6 @@ export default {
 		const mainHeight = computed(() => {
 			return wx.getSystemInfoSync().windowHeight - store.state.headerHeight;
 		})
-
-		
 		
 		const methods = {
 			handleChangeScroll(event){

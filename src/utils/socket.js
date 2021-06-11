@@ -2,6 +2,7 @@
 // AppSecret 83349d11fba1703078d576eea70859f8
 import store from '../store'
 import { socketId } from './socketId'
+import { showToast } from '../utils/index'
 
 export default {
     webSocketTask: null,
@@ -14,8 +15,7 @@ export default {
         let that = this;
 
         wx.showLoading({
-            title: '加载中',
-            mask: true
+            title: '加载中'
         })
 
         that.webSocketTask = wx.connectSocket({
@@ -38,7 +38,6 @@ export default {
     
         // 打开连接
         that.webSocketTask.onOpen(res => {
-            console.log('打开连接')
             that.login()
             this.heartBeat()
         });
@@ -88,6 +87,12 @@ export default {
                     break;
                 case socketId.previewResponse:   //预览  返回的预览id
                     store.commit('SET_PREVIEW_ID', data.auctionId)
+                    break;
+                case socketId.buySuccessMsg:      //抢购成功通知  返回抢购人的信息
+                    store.commit('SET_BUY_SUCCESS_MEMBER', data)
+                    break;
+                case socketId.wxPayment:            //调起微信支付
+                    store.commit('SET_WX_PAYMENT_INFO', data)
                     break;
                 default:
                     break;
@@ -142,14 +147,18 @@ export default {
         }else{
             wx.login({
                 success (res) {
-                    _this.socketSendMessage(
-                        {
-                            id: socketId.codeLogin, // 消息id，3002
-                            platform : 3,
-                            token: res.code, 
-                            screenId: 29,
-                        }                
-                    )
+                    if(res.code){
+                        _this.socketSendMessage(
+                            {
+                                id: socketId.codeLogin, // 消息id，3002
+                                platform : 3,
+                                token: res.code, 
+                                screenId: 29,
+                            }                
+                        )
+                    }else{
+                        _this.showError('获取登录凭证失败!')
+                    }
                 }
             })
         }
@@ -177,11 +186,7 @@ export default {
 
     //登录失败
     showError(msg = '加载失败'){
-        wx.showToast({
-            title: msg,
-            icon: 'none',
-            duration: 2000
-        })
+        showToast(msg)
     },
 
 

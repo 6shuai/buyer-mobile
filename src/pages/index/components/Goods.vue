@@ -15,7 +15,7 @@
 
 			<view class="goods_content">
 				<view class="time">
-					<text class="time_text">一行白鹭上青天</text>
+					<text class="time_text">运营小姐姐正在加班筹划新活动...先从上面选一个参加吧！</text>
 				</view>				
 			</view>
 		</view> -->	
@@ -25,9 +25,15 @@
 			v-for="(item, index) in goodsList"
 			:key="index"
 			:id="'goods_item_' + index"
+			:class="{
+				'goods_item_active': item.status == 1 || item.status == 2,
+				'goods_item_end': item.status == 0
+			}"
 			@tap.stop="handleDetail(item)"
 		>
-			<view class="goods_timeline">
+			<view 
+				class="goods_timeline"
+			>
 				<view class="goods_timeline_top"></view>
 				<view class="goods_timeline_line"></view>
 			</view>
@@ -194,8 +200,26 @@
 			</view>
 		</view>
 
+		<view
+			class="goods_item goods_text_item clearfix"
+			v-if="goodsList.length"
+		>
+			<view class="goods_timeline">
+				<view class="goods_timeline_top"></view>
+			</view>
+
+			<view class="goods_content">
+				<view class="time">
+					<text class="time_text">运营小姐姐正在加班筹划新活动...先从上面选一个参加吧！</text>
+				</view>				
+			</view>
+		</view>
+
 		<!-- 商品详情 -->
-		<goods-detail ref="goodsDetail"></goods-detail>
+		<goods-detail 
+			ref="goodsDetail"
+			@detaileHandleJoin="handleJoin"
+		></goods-detail>
 
 	</view>
 </template>
@@ -206,6 +230,7 @@ import GoodsDetail from './GoodsDetail'
 import mixin from '../../../mixins'
 import { socketId } from '../../../utils/socketId'
 import { useStore } from 'vuex';
+import { showToast } from '../../../utils/index'
 
 export default {
 	emits: ['setScrollTop'],
@@ -253,30 +278,24 @@ export default {
 			// store.dispatch('setGoodsDetail', item)
 
 			//预览抢购
-			// instance.appContext.config.globalProperties.$socket.socketSendMessage({
-			// 	id: socketId.preview,
-			// 	auctionId: item.id
-			// })
-
-			wx.navigateTo({
-				url: `./buyer/buyer?id=${item.id}`
+			instance.appContext.config.globalProperties.$socket.socketSendMessage({
+				id: socketId.preview,
+				auctionId: item.id
 			})
+
+			// wx.navigateTo({
+			// 	url: `./buyer/buyer?id=823492`
+			// })
 		}
 
 		//返场订阅
 		const handleGoBackSubscription = () => {
-			wx.showToast({
-				title: '返场订阅成功',
-				duration: 2000
-			})
+			showToast('返场订阅成功', 'success')
 		}
 
 		//预约订阅
 		const handleSubscription = () => {
-			wx.showToast({
-				title: '预约抢购成功',
-				duration: 2000
-			})
+			showToast('预约抢购成功', 'success')
 		}
 
 		const goodsDetail = ref(null)		

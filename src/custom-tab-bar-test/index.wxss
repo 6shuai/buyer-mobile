@@ -25,4 +25,5 @@
   width: 128rpx;
   height: 128rpx;
   margin-top: -40rpx;
+  border-radius: 50%;
 }

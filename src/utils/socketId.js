@@ -18,6 +18,8 @@ export const socketId = {
     goodsDetail: 7004,             //首页点击卡片 显示抢购详情 奖励规则
     panicBuyDetail: 7005,          //抢购详情
     goodsListState: 7006,          //抢购列表 当天的抢购开始或者结束会通知
+    buySuccessMsg: 7007,           //抢购成功通知  返回抢购人的信息
+    wxPayment: 7009,               //调起微信支付
     
     userInfo: 7011,                //登录成功 返回用户信息
     loginError: 7012,              //返回的失败消息

@@ -24,6 +24,7 @@
 
             <view class="rank_wrap">
                 <scroll-view
+                    class="scroll-view"
                     :style="{ height: mainHeight + 'px' }"
                     scrollY="true"
                     :scrollTop="0"
@@ -100,6 +101,12 @@ export default {
         margin: 0 12px;
         border-radius: 25px;
         overflow: hidden;
+        backface-visibility: hidden;
+        transform-style: preserve-3d;
+
+        .scroll-view{
+            min-height: 500px;
+        }
     }
 
     .rank-tab{

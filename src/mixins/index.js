@@ -134,10 +134,62 @@ export default function () {
         };
     }
 
+    //传入时间  和 时长  返回一个新的时间
+   function findNewTime(time, duration) {
+       console.log(time, duration)
+        let t = time.split(":");
+        //小时
+        let h = Number(t[0]);
+        //分钟
+        let m = Number(t[1]);
+        //秒
+        let s = Number(t[2]);
+
+        //秒转换成分钟  余出来的秒数
+        let remainderS = duration % 60;
+
+        if (d > 60) {
+            h = h + (d - d % 60) / 60;
+            d = d % 60;
+        } else if (d < -60) {
+            h = h - (Math.abs(d) - d % 60) / 60;
+            d = d % 60;
+        } 
+
+        //秒数转为 分钟
+        let d = (duration - remainderS) / 60;
+        if (s + remainderS >= 60) {
+            s = s + remainderS - 60;
+            m = m + 1;
+        } else if (s + remainderS < 0) {
+            s = 60 - Math.abs(s + remainderS);
+            m = m - 1;
+        } else {
+            s = s + remainderS;
+        }
+        if (m + d >= 60) {
+            m = m + d - 60;
+            h = h + 1;
+        } else if (m + d < 0) {
+            m = 60 - Math.abs(m + d);
+            h = h - 1;
+        } else {
+            m = m + d;
+        }
+        return (
+            addPreZero(h) +
+            ":" +
+            addPreZero(m) +
+            ":" +
+            addPreZero(s)
+        );
+    }
+
 
     return {
         findGoodsState,
         formatTime,
-        priceFormat
+        priceFormat,
+        findNewTime
     }
 }

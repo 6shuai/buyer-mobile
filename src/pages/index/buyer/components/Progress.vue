@@ -8,7 +8,11 @@
                 :animation="progressAnim"
                 :style="{ height: barHeight + '%' }"
             >
-                <image class="progress" src="../../../../image/progress_02.png" />
+                <image 
+                    class="progress" 
+                    src="../../../../image/progress_02.png"
+                    :style="{ height: progressBarHeight ? progressBarHeight + 'px' : '100%' }"
+                />
                 <image 
                     class="bar_light" 
                     src="../../../../image/progress_light.png"
@@ -41,7 +45,7 @@
         <!-- 猜的价格 -->
         <view 
             class="guess_price" 
-            :style="{ top: 100 - guessPosition + '%' }"
+            :style="{ top: 100 - guessPosition < 0 ? 0 : 100 - guessPosition + '%' }"
             v-if="guessPrice.int">
             <view class="arrow"></view>
             <view class="number_warp">
@@ -74,9 +78,11 @@ export default {
         //currentPrice              抢购价格
         //priceDeclineRate          每分钟下降金额
         //priceDecline              每次下降多少钱
-        //priceDeclineFrequence     多少时间下降一次
-        let { currentPrice, priceDeclineRate, priceDeclineFrequence, priceDecline, marketValue } = props.goodsData 
-        priceDeclineFrequence = priceDeclineFrequence ? priceDeclineFrequence : 1
+        //priceDeclineFrequency     多少时间下降一次
+        let { currentPrice, priceDeclineRate, priceDeclineFrequency, priceDecline, marketValue } = props.goodsData 
+        priceDecline = priceDecline
+        priceDeclineRate.full = priceDeclineRate.full
+        priceDeclineFrequency = priceDeclineFrequency ? priceDeclineFrequency : 1
 
         //猜价价格  在进度条出现的位置
         const guessPosition = computed(() => {
@@ -94,13 +100,13 @@ export default {
         const setProgressHeight = () => {
             state.barHeight = (currentPrice.full / marketValue.full) * 100
             setTimeout(() => {
-                // let animation = wx.createAnimation({
-                //     duration: (currentPrice.full / priceDeclineRate.full) * 60000,
-                //     timingFunction: 'ease-in-out',
-                // })
-                // animation.height(0).step()
+                let animation = wx.createAnimation({
+                    duration: (currentPrice.full / priceDeclineRate.full) * 60000,
+                    timingFunction: 'ease-in-out',
+                })
+                animation.height(0).step()
     
-                // state.progressAnim = animation.export()
+                state.progressAnim = animation.export()
 
                 var query = wx.createSelectorQuery();
                 query.select('.bar').boundingClientRect()
@@ -110,13 +116,18 @@ export default {
             }, 200);
 
 
-            setRealTimePrice(currentPrice.full, priceDeclineRate, priceDeclineFrequence)
+            setRealTimePrice(currentPrice.full, priceDeclineFrequency)
         }
 
         //实时价格
-        const setRealTimePrice = (price, priceDeclineRate, priceDeclineFrequence) => {
+        const setRealTimePrice = (price, priceDeclineFrequency) => {
             clearTimeout(state.timer)
             let newPrice = price - priceDecline
+            console.log(price, priceDecline)
+            if(newPrice <=0 ) {
+                newPrice = 0
+                return
+            }
             state.realTimePrice = priceFormat(newPrice)
             store.dispatch('setRealTimePrice', state.realTimePrice)
 
@@ -126,21 +137,22 @@ export default {
             query.exec(function (res) {
                 if(!res[0] || !res[0].height) return
                 state.currentPriceTop = 100 - res[0].height / state.progressBarHeight * 100
-                if(state.currentPriceTop >= 100) {
-                    state.currentPriceTop = 100
-                    clearTimeout(state.timer)
-                }
             })
 
 
             state.timer = setTimeout(() => {
-                setRealTimePrice(newPrice, priceDeclineRate, priceDeclineFrequence)
-            }, priceDeclineFrequence * 1000);
+                setRealTimePrice(newPrice, priceDeclineFrequency)
+            }, priceDeclineFrequency * 1000);
         }
 
         //抢购结束
         const gameOver = () => {
             clearInterval(state.timer)
+            let animation = wx.createAnimation({
+                duration: 1000,
+            })
+            animation.height(100 - state.currentPriceTop + '%').step()
+            state.progressAnim = animation.export()
         }
 
         //页面销毁
@@ -170,10 +182,10 @@ export default {
 
     .progress_wrap{
         position: fixed;
-        top: 140px;
+        top: 18%;
         left: 0;
         width: 40px;
-        height: 502px;
+        height: 60%;
         background: url('../../../../image/progress_01.png') bottom no-repeat;
         background-size: 100% 100%;
         border-radius: 8px;
@@ -181,7 +193,7 @@ export default {
 
         .bar{
             width: 16px;
-            height: 502px;
+            height: 100%;
             position: absolute;
             bottom: 0;
             left: 12.5px;
@@ -190,7 +202,7 @@ export default {
 
             .bar_image{
                 width: 16px;
-                height: 502px;
+                height: 100%;
                 // background: url('../../../../image/progress_02.png') bottom no-repeat;
                 // background-size: 100% 100%;
                 position: absolute;
@@ -201,7 +213,7 @@ export default {
 
                 .progress{
                     width: 16px;
-                    height: 502px;
+                    height: 100%;
                     position: absolute;
                     bottom: 0;
                     z-index: -1;
@@ -219,10 +231,10 @@ export default {
 
         .progress_border{
             position: absolute;
-            top: 0;
+            top: -1px;
             left: 0;
             width: 40px;
-            height: 502px;
+            height: 100%;
             background: url('../../../../image/progress_03.png') bottom no-repeat;
             background-size: 100% 100%;
         }
@@ -237,7 +249,7 @@ export default {
             border-radius: 4px;
             position: absolute;
             z-index: 0;
-            top: 100;
+            top: 0;
             left: 45px;
             transition: all .1 ease-in;
             margin-top: -15px;
@@ -261,7 +273,7 @@ export default {
         .guess_price{
             display: flex;
             background: @color_darkgray;
-            top: 200px;
+            top: 0;
             z-index: 99;
             border-top-right-radius: 14px;
             border-bottom-right-radius: 14px;

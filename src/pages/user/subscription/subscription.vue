@@ -27,20 +27,16 @@
                         </view>
 
                         <view class="right_price">
-                            <view class="original text_size_12">￥2,099</view>
-                            <view class="price_b">
-                                <view class="discounts">
-                                    已优惠
-                                    <text class="ali_font">￥663.58</text>
-                                </view>
-                                <view class="number_warp text_size_16">
-                                    <text class="price_num ali_font_bold"
-                                        >1,680</text
-                                    >
-                                    <text class="price_after ali_font_bold text_size_14"
-                                        >.00</text
-                                    >
-                                </view>
+                             <view class="number_warp text_size_16">
+                                 <text class="price_after ali_font_bold text_size_14"
+                                    >￥</text
+                                >
+                                <text class="price_num ali_font_bold"
+                                    >1,680</text
+                                >
+                                <text class="price_after ali_font_bold text_size_14"
+                                    >.00</text
+                                >
                             </view>
                         </view>
 

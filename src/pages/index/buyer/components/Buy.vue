@@ -79,6 +79,7 @@
 
             <!-- 支付之前 -->
             <scroll-view 
+                v-if="!payState"
                 :scrollY="true"
                 class="buy_before"
                 :style="{ height: addressHeight + 'px' }"
@@ -161,7 +162,7 @@
 
             </scroll-view>
 
-            <!-- 支付成功后 -->
+            <!-- 支付成功后 订单详情 -->
             <view 
                 class="buy_success_wrap"
                 v-if="payState == 'success'"
@@ -188,13 +189,19 @@ import { reactive, toRefs, getCurrentInstance, computed, watch, onMounted } from
 import { socketId } from '../../../../utils/socketId'
 import { useStore } from 'vuex'
 import mixin from '../../../../mixins'
+import { showToast } from '../../../../utils/index'
 
 export default {
     props: ['goodsData', 'price'],
-    setup(props) {
+    emits: ['buyCallFun'],
+    setup(props, { emit }) {
         const instance = getCurrentInstance()
         const store = useStore()
         const { priceFormat } = mixin()
+
+        const wxPaymentInfo = computed(() => {
+            return store.state.wxPaymentInfo
+        })
 
         onMounted(() => {
             state.addressHeight = wx.getSystemInfoSync().windowHeight * 0.8 - 260
@@ -245,7 +252,7 @@ export default {
             instance.appContext.config.globalProperties.$socket.socketSendMessage({
                 id: socketId.buy,
                 bidPrice:state.realTimePrice.full,// 抢购的金额
-                paidPrice: paidPrice, // 支付成功的金额
+                paidPrice: 0.01, // 支付成功的金额
                 receiveType: receiveType, // 领取方式，1线下，2线上
                 pickUpAddressId: id, // 如果是线下领取，这里发领取地址id
             })
@@ -256,15 +263,36 @@ export default {
                 receiveType,
                 pickUpAddressId: id
             })
-
-            wx.showToast({
-                title: '支付成功'
-            })
         }
 
-        // watch(realTimePrice, (newProps, oldProps) => {
-        //     console.log(newProps)
-        // })
+        //调起微信支付
+        const wxRequestPayment = (data) => {
+            let { timeStamp, nonceStr, prepayId, paySign } = data
+            wx.requestPayment(
+				{
+					"timeStamp": timeStamp,
+					"nonceStr": nonceStr,
+					"package": "prepay_id=" + prepayId,
+					"signType": "RSA",
+					"paySign": paySign,
+					"success":function(res){
+                        showToast('支付成功', 'success')
+                        state.payState = 'success'
+                        emit('buyCallFun', state.realTimePrice)
+                    },
+					"fail":function(res){
+                        showToast('支付失败', 'error')
+                        state.payState = 'error'
+                    },
+					"complete":function(res){}
+				}
+			)
+        }
+
+        watch(wxPaymentInfo, (newProps, oldProps) => {
+            //调起微信支付
+            wxRequestPayment(newProps)
+        })
 
         const state = reactive({
             paymentIndex: 0,      //领取方式
@@ -320,6 +348,7 @@ export default {
             font-size: 30px;
             color: #fff;
             text-align: center;
+            margin-top: 20px;
         }
 
         .buy_fail{
@@ -424,7 +453,6 @@ export default {
                 width: 100%;
 
                 .item{
-                    height: 40px;
                     margin-top: 3px;
                     background: #fff;
                     display: flex;

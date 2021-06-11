@@ -54,42 +54,26 @@
                 <view class="goods_video">
                     <video 
                         :src="videoUrl"
-                        :muted="true"
+                        :controls="false"
+                        :autoplay="currentState < 3"
+                        :show-center-play-btn="false"
                         @ended="handleVideoEnded">
                     </video>
                 </view>
 
                 <!-- 已抢购成功的用户 -->
-                <view class="buy_success_member">
-                    <image src="" class="member_head_img" />
-                    <view class="member_info">
-                        <view class="title text_overflow">
-                            <text class="text_size_12">马冬梅</text>
-                            <text class="count">抢到一件</text>
-                        </view>
-                        <view class="number_warp">
-                            <text class="price_before ali_font_bold text_size_12"
-                                >￥</text
-                            >
-                            <text class="price_num ali_font_bold text_size_16"
-                                >{{ resData.marketValue.int }}</text
-                            >
-                            <text class="price_after ali_font_bold text_size_12"
-                                >{{ resData.marketValue.decimals }}</text
-                            >
-                        </view>
-                    </view>
-                </view>
+                <buy-success-notice></buy-success-notice>
                 
             </view>
 
             <view 
                 class="guess_card_box"
                 :class="{ 
-                    already: currentState == 1 && (guessPriceNum.int || guessPriceNum.decimals),
-                    count_down: currentState == 2,
-                    buying: currentState == 3,
-                    order: currentState == 4
+                    'already': currentState == 1 && (guessPriceNum.int || guessPriceNum.decimals),
+                    'count_down': currentState == 2,
+                    'buying': currentState == 3,
+                    'order': currentState == 4,
+                    'sell_out': currentState == 5
                 }"
             >
                 <view class="card_bg">
@@ -97,12 +81,13 @@
 
 
                         <view class="price_box overflow">
-                            <view class="buy_watermark" v-if="currentState == 4">已抢到</view>
-                            <!-- <view class="buy_watermark">已售罄</view> -->
+                            <view class="buy_watermark" v-if="currentState == 4 || buySuccess">已抢到</view>
+                            <view class="buy_watermark" v-else-if="currentState == 5">已售罄</view>
                             <view class="desc text_size_12_by">
                                 <text>{{ 3 > currentState ? '猜价奖金' : currentState == 3 ? '实时价格' : '抢购价格' }}</text>
                             </view>
-                            <view class="number_warp" v-if="currentState == 3">
+                            <!-- 实时价格 -->
+                            <view class="number_warp" v-if="currentState == 3 || currentState == 4">
                                 <text class="price_before ali_font_bold text_size_12"
                                     >￥</text
                                 >
@@ -113,6 +98,7 @@
                                     >{{ realTimePrice.decimals }}</text
                                 >
                             </view>
+                            <!-- 猜价价格 -->
                             <view class="number_warp" v-else>
                                 <text class="price_before ali_font_bold text_size_12"
                                     >￥</text
@@ -179,6 +165,7 @@
             v-if="resData"
             ref="buyPage"
             :price="resData.marketValue"
+            @buyCallFun="buyCallFun"
             :goodsData="resData"
         ></buy>
 
@@ -197,9 +184,11 @@ import PriceProgress from './components/Progress'
 import GuessPrice from './components/GuessPrice'
 import Buy from './components/Buy'
 import HowToPlay from './components/HowToPlay'
+import BuySuccessNotice from './components/BuySuccessNotice.vue'
 import { reactive, ref, toRefs, computed, onMounted, getCurrentInstance, watch, nextTick } from "vue"
 import { useStore } from "vuex"
 import mixin from '../../../mixins'
+import { showToast } from '../../../utils/index'
 import { countDown } from './components/CountDown'
 import { socketId } from '../../../utils/socketId'
 
@@ -244,11 +233,10 @@ export default {
         const methods = {
             //参加抢购
             init(){
-                // if(store.state.panicBuyDetail){
-                //     this.getGoodsDetail(store.state.panicBuyDetail)
-                //     return
-                // }
-
+                if(store.state.panicBuyDetail){
+                    this.getGoodsDetail(store.state.panicBuyDetail)
+                    return
+                }
                 wx.showLoading({
                     title: '加载中',
                 })
@@ -256,6 +244,7 @@ export default {
                 let pages = getCurrentPages()
                 let currentPage = pages[pages.length - 1]
                 let id = currentPage.options.id
+                //发送获取抢购详情请求
                 instance.appContext.config.globalProperties.$socket.socketSendMessage({
                     id: socketId.joinBuy,
                     auctionId: id
@@ -273,7 +262,6 @@ export default {
                 }
                 this.gameState(data.gameStateId)
                 wx.hideLoading()
-                this.playGoodsVideo()
             },
 
             //播放抢购视频
@@ -341,7 +329,6 @@ export default {
                     if(num <= 9) {
                         state.currentState = 2
                         state.countImg = countDown['countDown'+num]
-                        console.log(state.countImg)
                     }
                 }, 1000);
             },
@@ -350,11 +337,7 @@ export default {
             gameStart(){
                 if(state.guessPrice.showDialog){
                     state.guessPrice.showDialog = false
-                    wx.showToast({
-                        title: '猜价阶段已结束',
-                        icon: 'none',
-                        duration: 2000
-                    })
+                    showToast('猜价阶段已结束')
                 }
                 //抢购进度条
                 nextTick(() => {
@@ -376,7 +359,7 @@ export default {
                         
                         break;
                     case 1:
-                        
+                        if(state.resData.goods.video && state.resData.goods.video.length) this.playGoodsVideo()
                         break;
                     case 2:
                         this.buyCountDown(state.resData.getGameStateTimer)
@@ -387,6 +370,14 @@ export default {
                     default:
                         break;
                 }
+            },
+
+            //支付后 回调    price 抢购成功的价格
+            buyCallFun(price){
+                state.currentState = 4
+                state.priceProgress.gameOver()
+                state.realTimePrice = price
+                state.buySuccess = true
             }
         }
         
@@ -422,6 +413,7 @@ export default {
             currentVideoIndex: 0,     //当前播放的视频索引
             currentState: 0,          //当前状态 0 猜价   1已猜价  2倒计时  3立即抢购     4查看订单
             guessPriceNum: {},        //猜的价格
+            buySuccess: false,         
             countImg: countDown.countDown9,             //倒计时图片
             buyPage,
             guessPrice,
@@ -441,6 +433,7 @@ export default {
         GuessPrice,
         Buy,
         HowToPlay,
+        BuySuccessNotice,
 	},
 };
 </script>
