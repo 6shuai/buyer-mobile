@@ -10,8 +10,13 @@
                 autoplay
                 @change="changeSwiper"
             >
-                <swiper-item v-for="(item, index) in bannerData" :key="index">
-                    <view class="banner_item">{{ item }}</view>
+                <swiper-item v-for="(item, index) in bannerList" :key="index">
+                    <view 
+                        class="banner_item"
+                        @tap="handleClickBanner(item)"
+                    >
+                        <image :src="item.image" />
+                    </view>
                 </swiper-item>
             </swiper>
             <view class="indicator_dots">
@@ -22,17 +27,30 @@
 </template>
 
 <script>
-import { reactive, toRefs } from "vue";
+import { reactive, toRefs, computed } from "vue"
+import { useStore } from 'vuex'
 export default {
 	setup(props) {
+        const store = useStore()
+        const bannerList = computed(() => {
+            return store.state.bannerList
+        })
+
+        //监听banner切换
         const changeSwiper = e => {
             state.currentIndex = e.target.current
         }
 
+        //点击banner
+        const handleClickBanner = () => {
+            console.log('点击了banner')
+        }
+
 		const state = reactive({
-			bannerData: [1, 2, 3, 4, 5],
             currentIndex: 0,
-            changeSwiper
+            changeSwiper,
+            bannerList,
+            handleClickBanner
 		});
 
 		return toRefs(state);
@@ -50,6 +68,7 @@ export default {
     .banner_wrap{
         width: 100%;
         height: 128px;
+        overflow: hidden;
         position: relative;
         .banner_swiper {
             width: 369px;
@@ -62,6 +81,10 @@ export default {
                 border-radius: 12px;
             }
 
+            .banner_item,  .banner_item image{
+                width: 100%;
+                height: 100%;
+            }
         }
         
         .indicator_dots {

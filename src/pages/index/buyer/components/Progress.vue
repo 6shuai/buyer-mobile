@@ -123,9 +123,11 @@ export default {
         const setRealTimePrice = (price, priceDeclineFrequency) => {
             clearTimeout(state.timer)
             let newPrice = price - priceDecline
-            console.log(price, priceDecline)
+            
             if(newPrice <=0 ) {
                 newPrice = 0
+                state.realTimePrice = priceFormat(newPrice)
+                store.dispatch('setRealTimePrice', state.realTimePrice)
                 return
             }
             state.realTimePrice = priceFormat(newPrice)

@@ -1,9 +1,11 @@
 <template>
 	<view class="home page_bg">
+		<!-- 选择城市 -->
+		<place></place>
+
 		<page-head page="home" />
 
 		<view class="main" :style="{ marginTop: headHeight + 'px' }">
-
 			<scroll-view
 				:style="{ height: mainHeight + 'px' }"
 				:scrollY="true"
@@ -34,12 +36,13 @@
 </template>
 
 <script>
-import PageHead from "../../components/PageHead.vue";
-import Banner from "./components/Baaner.vue";
-import Goods from "./components/Goods.vue";
-import CustomTabBar from "../../components/custom-tab-bar/index.vue";
-import { reactive, ref, toRefs, computed, nextTick } from "vue";
-import { useStore } from "vuex";
+import PageHead from "../../components/PageHead.vue"
+import Banner from "./components/Baaner.vue"
+import Goods from "./components/Goods.vue"
+import CustomTabBar from "../../components/custom-tab-bar/index.vue"
+import Place from './components/Place.vue'
+import { reactive, ref, toRefs, computed, nextTick } from "vue"
+import { useStore } from "vuex"
 
 export default {
 	name: "Index",
@@ -64,6 +67,7 @@ export default {
 					// state.bannerTop = state.touchTop;
 					state.bannerTop = state.touchTop >= state.bannerHeight ? -state.bannerHeight + (state.touchTop - s) : -state.touchTop + (state.touchTop - s)
 				}else{
+					//上滑
 					state.touchTop = s;
 					state.bannerTop = -s;
 				}
@@ -139,6 +143,7 @@ export default {
 		Banner,
 		Goods,
 		CustomTabBar,
+		Place
 	},
 };
 </script>

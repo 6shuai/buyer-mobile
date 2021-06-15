@@ -10,7 +10,10 @@
                     <image class="icon_location" src="../image/icon_location.png" />
                     <text>北京市 通州万达广场</text>
                 </view>
-                <view class="toggle_location">
+                <view 
+                    class="toggle_location"
+                    @tap="handleShowPlaceList"
+                >
                     <image
                         class="icon_location_change"
                         src="../image/icon_location_change.png"
@@ -49,6 +52,11 @@ export default {
 			})
 		}
 
+        //点击切换 显示场所列表
+        const handleShowPlaceList = () => {
+            store.commit('SET_SHOW_PLACE_LIST', true)
+        }
+
         //获取胶囊信息
         let { width, height, top, bottom } = wx.getMenuButtonBoundingClientRect()
         const state = reactive({
@@ -56,6 +64,7 @@ export default {
             headTop: top + 6,        //胶囊距离顶部高度
             currentPage: '',
             gotoHomePage,
+            handleShowPlaceList
         })
 
         const store = useStore()

@@ -15,10 +15,10 @@
 
 			<view class="goods_content">
 				<view class="time">
-					<text class="time_text">运营小姐姐正在加班筹划新活动...先从上面选一个参加吧！</text>
+					<text class="time_text">2020年5月23日，极限买手诞生了。</text>
 				</view>				
 			</view>
-		</view> -->	
+		</view>	 -->
 
 		<view
 			class="goods_item clearfix"
@@ -168,7 +168,7 @@
 										status 1 未开始  预约抢购 
 										即将开始 或者 进行中 
 									-->
-									<image 
+									<!-- <image 
 										v-if="item.status == 0" 
 										mode="heightFix" 
 										src="../../../image/btn_subscribe_3.png" 
@@ -185,12 +185,12 @@
 										mode="heightFix" 
 										src="../../../image/btn_start.png" 
 										@tap.stop.prevent="handleJoin(item)"
-									/>
-									<!-- <image 
+									/> -->
+									<image 
 										mode="heightFix" 
 										src="../../../image/btn_start.png" 
 										@tap.stop.prevent="handleJoin(item)"
-									/> -->
+									/>
 								</view>
 							</view>
 						</view>
@@ -398,7 +398,328 @@ export default {
 </script>
 
 <style lang="less">
-@import "./goods.less";
+@import '../../../variables.less';
+.goods_warp{
+    margin: 24px 12px 0 12px;
+    padding-bottom: 82px;
+
+    .goods_loading{
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        color: #fff;
+    }
+    
+    .goods_item{
+        height: 223px;
+        
+        &.goods_item_active{
+            .goods_timeline{
+                &_top{
+                    background: @color_info;
+                }
+    
+                &_line{
+                    background: @color_info;
+                }
+            }
+    
+            .goods_content .time{
+                color: @color_info;
+            }
+        }
+
+        &.goods_item_end{
+            .goods_timeline{
+                &_top{
+                    background: #919191;
+                }
+    
+                &_line{
+                    background: #919191;
+                }
+            }
+    
+            .goods_content .time{
+                color: #919191;
+            }
+        }
+
+        .goods_timeline{
+            float: left;
+            height: 100%;
+            width: 11px;
+            position: relative;
+            text-align: center;
+
+            &_top{
+                display: inline-block;
+                width: 11px;
+                height: 11px;
+                border-radius: 50%;
+                background: #fff;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 99;
+            }
+
+            &_line{
+                width: 2px;
+                height: 100%;
+                background: #fff;
+                display: inline-block;
+            }
+        }
+
+        .goods_content{
+            float: left;
+            width: 334px;
+            margin-left: 6px;
+            margin-top: -2px;
+            .time{
+                font-size: 12px;
+                padding-left: 5px;
+                color: #fff;
+                height: 17px;
+                // color: @color_info;
+            }
+
+            .goods_info{
+                padding-top: 3px;
+
+                .state_wrap{
+                    height: 24px;
+                    padding: 36px 0 6px 0;
+                    text-align: right;
+                    image{
+                        height: 24px;
+                        display: inline-block;
+                    }
+                }
+
+                .goods_card{
+                    width: 334px;
+                    height: 129px;
+
+                    .goods_card_content{
+                        width: 334px;
+                        height: 117px;
+                        background: url(../../../image/card_before_bottom.png) left bottom no-repeat, url(../../../image/card_before.png) 0 0 no-repeat;
+                        box-shadow: 0px 0px 12px 0px rgba(187, 42, 68, 0.6), 0px 0px 36px 0px rgba(235, 155, 66, 0.6), 0px 0px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 12px 0px rgba(235, 155, 66, 0.6);
+                        background-size: 334px 110px, 334px 117px;
+                        border-radius: 12px;
+
+                        .goods_introduce{
+                            width: 100%;
+                            height: 63px;
+                            margin: 0 12px;
+
+                            .goods_image{
+                                float: left;
+                                width: 126px;
+                                height: 126px;
+                                margin-top: -63px;
+                                image{
+                                    width: 126px;
+                                    height: 126px;
+                                }
+                            }
+
+                            .goods_right_text{
+                                display: inline-block;
+                                width: 181px;
+                                height: 63px;
+                                padding-left: 3px;
+
+                                .title{
+                                    font-size: 16px;
+                                    color: @color_primary;
+                                    height: 22px;
+                                    line-height: 22px;
+                                    font-weight: 600;
+                                }
+                                
+                                .desc{
+                                    font-size: 12px;
+                                    height: 17px;
+                                    line-height: 17px;
+                                    padding: 4px 0 0 6px;
+                                    font-weight: 500;
+                                }
+
+                                .bonus_wrap{
+                                    width: 100%;
+                                    height: 18px;
+                                    padding-top: 3px;
+                                    text-align: right;
+
+                                    .bonus_btn{
+                                        height: 18px;   
+                                        line-height: 18px;
+                                        padding: 0 12px;
+                                        display: inline-block;
+                                        background: @color_info;
+                                        color: @color_primary;
+                                        font-size: 10px;
+                                        border-radius: 10px;
+
+                                        &.not_start{
+                                            background: @color_primary;
+                                            color: @color_info;
+                                        }
+
+                                        &.end{
+                                            background: #DEDEDE;
+                                            color: #000;
+                                        }
+
+                                        .price_num{
+                                            font-size: 12px;
+                                        }
+                                    }
+                                }
+
+                            }
+
+                        }
+
+                        .goods_card_bottom{
+                            padding: 6px 0;
+                            margin: 0 12px;
+                            height: 42px;
+                            
+                            .price{
+                                float: left;
+                                width: 160px;
+
+                                .show_price{
+                                    font-size: 12px;
+                                    height: 22px;
+                                    line-height: 22px;
+                                    color: #fff;
+
+                                    text.end{
+                                        color: @color_info;
+                                    }
+
+                                    view.end{
+                                        .number_warp{
+                                            color: @color_info;
+                                        }
+                                        
+                                        .original_price{
+                                            color: #fff;
+                                            padding-left: 3px;
+                                            text-decoration:line-through @color_info;
+
+                                            .price_before{
+                                                font-size: 10px;
+                                            }
+        
+                                            .price_num{
+                                                font-size: 12px;
+                                            }
+                                            
+                                            .price_after{
+                                                font-size: 10px;
+                                            }
+                                        }
+                                    }
+
+                                    .label{
+                                        font-size: 12px;
+                                    }
+
+                                    text.origin{
+                                        color: #fff;
+                                    }
+
+                                    .number_warp{
+                                        display: inline-block;
+                                        padding: 0 3px;
+                                        color: @color_primary;
+
+                                        &.not_start{
+                                            color: @color_info;
+                                        }
+                                    }
+
+                                    .price_before{
+                                        font-size: 12px;
+                                    }
+
+                                    .price_num{
+                                        font-size: 16px;
+                                    }
+                                    
+                                    .price_after{
+                                        font-size: 12px;
+                                        padding-right: 3px;
+                                    }
+
+                                    &.depreciate{
+                                        text-align: right;
+                                    }
+                                    
+                                }
+                            }
+
+                            .btn_wrap{
+                                width: 143px;
+                                height: 39px;
+                                float: right;
+                                image{
+                                    height: 39px;
+                                    width: 100%;
+                                    margin-top: 21px;
+                                    box-shadow: 0px 0px 16px 0px rgba(0, 0, 0, 0.2), 0px 0px 4px 0px rgba(0, 0, 0, 0.4);
+                                    border-radius: 12px;
+                                }
+                            }
+                        }
+
+
+                        &.not_start{
+                            background: url(../../../image/card_default_bottom.png) left bottom no-repeat, url(../../../image/card_before.png) 0 0 no-repeat;
+                            background-size: 668rpx 220rpx, 668rpx 234rpx;
+                            box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.4), 0px 0px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 12px 0px rgba(185, 72, 255, 0.4);
+                        }
+
+                        &.end{
+                            background: url(../../../image/card_end_bottom.png) left bottom no-repeat, url(../../../image/card_end.png) 0 0 no-repeat;
+                            background-size: 668rpx 220rpx, 668rpx 234rpx;
+                            box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.15), 0px 0px 4px 0px rgba(0, 0, 0, 0.4), 0px 0px 12px 0px rgba(185, 72, 255, 0.4);
+                        }
+                    }
+                }
+            }
+        }
+
+        &.goods_text_item{
+            height: 50px;
+
+            .goods_content{
+                .time{
+                    display: inline-block;
+                    border-radius: 4px;
+                    padding: 3px 12px;
+                    z-index: 2000;
+                    font-size: 10px;
+                    height: auto;
+                    line-height: 14px;
+                    min-width: 10px;
+                    word-wrap: break-word;
+                    background: #F8A446;
+                    color: #31113D;
+                    position: relative;
+                    border-radius: 6px;
+                }
+            }
+        }
+
+    }
+}
 </style>
 
 

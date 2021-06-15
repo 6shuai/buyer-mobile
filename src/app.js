@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import store from './store'
 import socket from './utils/socket.js'
-
 import './app.less'
 
 const App = createApp({
@@ -14,7 +13,7 @@ App.config.globalProperties.$socket = socket
 
 // socket 连接
 // setTimeout(() => {
-  socket.webSocketCon()
+  // socket.webSocketCon()
 // }, 2000);
 
 
@@ -38,8 +37,8 @@ updateManager.onUpdateReady(function () {
   })
 })
 
+// 新版本下载失败
 updateManager.onUpdateFailed(function () {
-  // 新版本下载失败
   wx.showToast({
       title: '新版本下载失败',
       icon: 'none',

@@ -163,21 +163,28 @@
             </scroll-view>
 
             <!-- 支付成功后 订单详情 -->
-            <view 
-                class="buy_success_wrap"
+            <scroll-view 
                 v-if="payState == 'success'"
+                :scrollY="true"
+                class="buy_before"
+                :style="{ height: addressHeight + 'px' }"
             >
-                <view class="item" v-for="item in 11" :key="item">
-                    <view class="label">领取方式</view>
-                    <view class="value">门店领取</view>
-                </view>
+                <view 
+                    class="buy_success_wrap"
+                >
+                
+                    <view class="item" v-for="item in 11" :key="item">
+                        <view class="label">领取方式</view>
+                        <view class="value">门店领取</view>
+                    </view>
 
-                <view class="buy_btn_wrap">
-                    <view class="buy_btn">
-                        查看领取码
+                    <view class="buy_btn_wrap">
+                        <view class="buy_btn">
+                            查看领取码
+                        </view>
                     </view>
                 </view>
-            </view>
+            </scroll-view>
 
         </view>
 

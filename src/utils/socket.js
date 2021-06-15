@@ -9,7 +9,7 @@ export default {
     heartBeatTimer: undefined,
     pongTime: null,  //收到心跳回复时间
     overtime: 60,   //超时时长
-    timer: undefined,
+    timer: undefined, 
 
     webSocketCon() {
         let that = this;
@@ -33,7 +33,6 @@ export default {
             fail: fail => {
 
             },
-    
         });
     
         // 打开连接
@@ -74,6 +73,9 @@ export default {
                     break;
                 case socketId.placeList:      //场所列表
                     store.commit('SET_PLACE_LIST', data.placeList)
+                    break;
+                case socketId.bannerList:     //banner列表
+                    store.commit('SET_BANNER_LIST', data.bannerList)
                     break;
                 case socketId.gameState:      //游戏抢购状态
                     //游戏的状态，0预热阶段，1竞猜阶段，2开始倒计时，3出价阶段

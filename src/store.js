@@ -9,6 +9,9 @@ const state = {
 	panicBuyDetail: undefined,      //抢购页 商品详情
 	allGoodsList: [],        //抢购列表  全部数据
 	placeList: [],           //场所列表
+	showPlace: false,        //是否显示场所列表
+	bannerList: [{}, {}],          //banner列表
+	currentPlace: {},        //当前场所
 	gamePanicBuyState: null, //游戏抢购阶段状态
 	homeGoodsState: {},      //抢购页商品状态通知  某个商品开始 或结束
 	realTimePrice: {},        //实时抢购价 
@@ -51,6 +54,33 @@ const mutations = {
 	//场所列表
 	SET_PLACE_LIST(state, data){
 		state.placeList = data
+
+		//获取本地存储的场所信息
+		wx.getStorage({
+			key: 'currentPlace',
+			success (res) {
+				state.currentPlace = JSON.parse(res.data)
+			}
+		})
+	},
+
+	//打开 或 关闭 场所列表
+	SET_SHOW_PLACE_LIST(state, data){
+		state.showPlace = data
+	},
+
+	//banner列表
+	SET_BANNER_LIST(state, data){
+		state.bannerList = data
+	},
+
+	//选择场所 设置当前场所
+	SET_CURRENT_PLACE(state, data){
+		state.currentPlace = data
+		wx.setStorage({
+			key: "currentPlace",
+			data: JSON.stringify(data)
+		})
 	},
 
 	//抢购页 游戏状态
