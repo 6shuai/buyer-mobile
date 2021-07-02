@@ -1,7 +1,9 @@
 <template>
-    <view 
+    <view class="mask" v-if="showDialog"></view>
+    <view  
         v-if="showDialog"
-        class="buy_dialog_wrap">
+        @catchtouchmove="handleCatchtouchmove"
+        class="dialog_wrap">
         <view 
             @tap="handleClosePage"
             class="close_btn">
@@ -59,12 +61,27 @@
         <!-- 按钮状态 -->
         <view class="btn_state">
             <image 
-                v-if="resData.status == 0" 
+                v-if="resData.status == 0 && store.state.goodsDataState.orderedGoods.includes(resData.goodsId)" 
+                mode="heightFix" 
+                src="../../../image/btn_subscribe_2.png" 
+            />
+            <image 
+                v-else-if="resData.status == 0" 
                 mode="heightFix" 
                 src="../../../image/btn_subscribe_3.png" 
+                @tap.stop.prevent="handleGoBackSubscription(resData.goodsId)"
+            />
+            <image 
+                v-else-if="resData.status == 1 && store.state.goodsDataState.orderedAuctions.includes(resData.id)" 
+                mode="heightFix" 
+                src="../../../image/btn_subscribe_1.png" 
+            />
+            <image 
+                v-else-if="resData.status == 1" 
+                mode="heightFix" 
+                src="../../../image/btn_subscribe_1.png" 
                 @tap.stop.prevent="handleSubscription(resData.id)"
             />
-            <image v-else-if="resData.status == 1" mode="heightFix" src="../../../image/btn_subscribe_1.png" />
             <image 
                 v-else 
                 mode="heightFix" 
@@ -84,14 +101,15 @@ import { socketId } from '../../../utils/socketId'
 import { showToast } from '../../../utils/index'
 import mixin from '../../../mixins/index'
 
+
 export default {
-    props: ['detaileHandleJoin'],
+    emits: ['detaileHandleJoin'],
     components: {
         Rule
     },
     setup(props, { emit }) {
         const store = useStore()
-        const instance = getCurrentInstance()
+        const { proxy } = getCurrentInstance()
         const { findNewTime } = mixin()
 
         //抢购详情
@@ -104,7 +122,7 @@ export default {
         })
 
         const handleShowPage = data => {
-            instance.appContext.config.globalProperties.$socket.socketSendMessage({
+            proxy.$socket.socketSendMessage({
 				id: socketId.getGoodsDetail,
 				auctionId: data.id
 			})
@@ -116,11 +134,15 @@ export default {
 
             state.resData = data
             state.showDialog = true
+            
+            store.state.showGoodsDetail = true
                 
         }
 
         const handleClosePage = () => {
             state.showDialog = false
+            store.state.showGoodsDetail = false
+            wx.hideLoading()
         }
 
         //马上参加
@@ -132,9 +154,22 @@ export default {
             emit('detaileHandleJoin', item)
 		}
 
-		//订阅
-		const handleSubscription = () => {
-			showToast('订阅成功', 'success')
+        //返场订阅
+		const handleGoBackSubscription = goodsId => {
+			proxy.$socket.socketSendMessage({
+				id: socketId.goBackSubscribeGoods,
+				goodsId: goodsId
+			})
+			showToast('返场订阅成功', 'success')
+		}
+
+		//预约抢购订阅
+		const handleSubscription = id => {
+			proxy.$socket.socketSendMessage({
+				id: socketId.subscribeGoods,
+				auctionId: id
+			})
+			showToast('预约抢购成功', 'success')
 		}
 
         //抢购详情
@@ -147,12 +182,17 @@ export default {
             nextTick(() => {
                 //创建节点选择器
                 var query = wx.createSelectorQuery();
-                query.select('.buy_dialog_wrap').boundingClientRect()
+                query.select('.dialog_wrap').boundingClientRect()
                 query.exec(function (res) {
                     state.pageHeight = res[0].height
                 })
             })
 		})
+
+        //解决滚动穿透
+        const handleCatchtouchmove = e => {
+            // console.log(e)
+        }
 
         const state = reactive({
             pageHeight: 600,
@@ -161,8 +201,11 @@ export default {
             handleShowPage,
             handleClosePage,
             handleJoin,
+            handleGoBackSubscription,
             handleSubscription,
-            findNewTime
+            findNewTime,
+            handleCatchtouchmove,
+            store
         })
 
 
@@ -173,52 +216,8 @@ export default {
 
 <style lang="less">
     @import url('../../../variables.less');
-    .buy_dialog_wrap{
-        width: 100%;
-        height: 610px;
-        max-height: 80%;
-        background: #f2f2f2;
-        background-size: 100%;
-        border-top-left-radius: 24px;
-        border-top-right-radius: 24px;
-        box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        z-index: 9999;
-
-        .close_btn{
-            width: 60px;
-            height: 60px;
-            position: absolute;
-            top: -30px;
-            right: 0;
-        }
-
-
-        .goods{
-            display: flex;
-            padding-left: 12px;
-
-            image{
-                width: 118px;
-                height: 118px;
-                margin-top: -59px;
-            }
-
-            .goods_name{
-                padding: 3px 3px 0 12px;
-                width: calc(100% - 130px);
-
-                .name{
-                    line-height: 30px;
-                }
-
-                .specification{
-                    line-height: 16px;
-                }
-            }
-        }
+    .dialog_wrap{
+        
 
         .content{
             padding: 7px 24px;
@@ -308,7 +307,7 @@ export default {
 
             image{
                 height: 59px;
-                border-radius: 16px;
+                border-radius: 19px;
                 display: inline-block;
             }
         }

@@ -1,5 +1,5 @@
 export default {
-  navigationBarTitleText: '抢购',
+  navigationBarTitleText: '极限买手',
   "usingComponents": {
     
   }

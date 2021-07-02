@@ -1,9 +1,11 @@
+import { useStore } from 'vuex'
 export default function () {
+    const store = useStore()
 
-    //抢购时间 和 当前时间比较
-    const findGoodsState = (date) => {
-        let state = 0;      
-        if(!date) return state
+    //抢购时间 和 当前时间比较   id 抢购id
+    const findGoodsState = (date, id) => {
+        let status = 0;      
+        if(!date) return status
         let time = formatTime(date)
         let currentDate = currentTime()
         let gDay = new Date(time.split(' ')[0]).getTime() / 1000;
@@ -12,25 +14,41 @@ export default function () {
         let cTime = new Date(currentDate).getTime() / 1000;
 
         //0 已结束   1未开始   2即将开始  3进行中 
+        // today state: 1 已结束   2 进行中   3 未开始 
         
         //抢购日期是否是今天
         if(gDay == day){
-            state = 2
-            if(gTime <= cTime){
-                // 进行中
-                state = 3
-            }else{
-                //即将开始
-            }
+            status = 2
+
+            store.state.goodsDataState.today.forEach(item => {
+                if(item.auctionId == id){
+                    switch (item.state) {
+                        case 1:
+                            status = 0
+                            break;
+                        case 2:
+                            status = 3
+                            break;
+                        case 3:
+                            status = 2
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            })
         }else if(gDay < day){
             //已结束
-            state = 0
+            status = 0
         }else {
             //未开始
-            state = 1
+            status = 1
         }
+        return status
+    }
 
-        return state
+    function test(){
+        return 'test'
     }
 
     function formatTime(timestamp, type) {
@@ -136,7 +154,6 @@ export default function () {
 
     //传入时间  和 时长  返回一个新的时间
    function findNewTime(time, duration) {
-       console.log(time, duration)
         let t = time.split(":");
         //小时
         let h = Number(t[0]);
@@ -190,6 +207,7 @@ export default function () {
         findGoodsState,
         formatTime,
         priceFormat,
-        findNewTime
+        findNewTime,
+        test
     }
 }

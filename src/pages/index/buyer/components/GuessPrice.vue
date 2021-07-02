@@ -1,5 +1,6 @@
 <template>
-    <view class="dialog_wrap" v-if="showDialog">
+     <view class="mask" v-if="showDialog"></view>
+    <view class="guess_dialog_wrap" v-if="showDialog">
         <view class="close_btn" @tap="showDialog = false">
             <image src="../../../../image/close_icon.png" />
         </view>
@@ -16,7 +17,7 @@
                         >￥</view
                     >
                     <view 
-                        v-for="(item, index) in 6"
+                        v-for="(item, index) in  6"
                         :key="index"
                         class="num_wrap">
                         <view 
@@ -33,6 +34,7 @@
                     <input 
                         class="input_hide" 
                         maxlength="6" 
+                        cursor-spacing="100"
                         @input="handleChangeInput" 
                         @focus="hangdleInputFocus"
                         type="number" 
@@ -59,11 +61,18 @@
 </template>
 
 <script>
-import { reactive, toRefs, ref } from 'vue'
+import { reactive, toRefs, computed } from 'vue'
+import { showToast } from '../../../../utils'
 export default {
     emits: ['goodsGuessPrice'], 
+    props: ['price'],
     setup(props, { emit }) {
-        const inputNumber = ref(null)
+
+        const inputNumber = computed(() => {
+            let str = props.price.int
+            return str.length
+        })
+
         const handleShowPage = () => {
             state.showDialog = true
         }
@@ -93,6 +102,11 @@ export default {
         const handleGuessPrice = () => {
             let str = String(state.iptValue)
             let price = str.slice(0, 4) + '.' + str.slice(4)
+
+            if(Number(price) > props.price.full){
+                showToast('猜价价格不能高于起拍价')
+                return
+            }
             emit('goodsGuessPrice', Number(price))
             state.showDialog = false
         }
@@ -104,12 +118,12 @@ export default {
             priceNumber: [],
             iptValue: '',
             currentFocusIndex: null,    //当前聚焦的input 
-            inputNumber,
             handleShowPage,
             handleChangeInput,
             hangdleInputFocus,
             currentInputNum,
-            handleGuessPrice
+            handleGuessPrice,
+            inputNumber
         })
 
         return toRefs(state)
@@ -120,7 +134,7 @@ export default {
 <style lang="less">
     @import url('../../../../variables.less');
 
-    .dialog_wrap{
+    .guess_dialog_wrap{
         width: 100%;
         height: 222px;
         background: #ffffff;
@@ -131,6 +145,7 @@ export default {
         bottom: 0;
         left: 0;
         z-index: 9999;
+        animation: dialogAnim .3s linear both;
 
         .close_btn{
             width: 60px;

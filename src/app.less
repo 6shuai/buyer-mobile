@@ -5,6 +5,7 @@ page{
     height: 100%;
     overflow: hidden;
     background: #F2F2F2;
+    color: #31113D;
     margin: 0;
     padding: 0;
     letter-spacing: 0.6px;
@@ -28,7 +29,10 @@ image{
 .main{
     height: calc(100% - 88px);
 }
-
+.text_size_18{
+    font-size: 18px;
+    color: @color_primary;
+}
 .text_size_16{
     font-size: 16px;
     color: @color_primary;
@@ -143,7 +147,7 @@ image{
     display: inline-block;
     border-radius: 4px;
     padding: 3px 12px;
-    z-index: 2000;
+    z-index: 20;
     font-size: 10px;
     line-height: 14px;
     min-width: 10px;
@@ -169,5 +173,70 @@ image{
         border-top-color: #F8A446;
         border-bottom-width: 0;
         border-width: 6px;
+    }
+}
+
+.mask{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99;
+    background: rgba(0,0,0,0.4);
+}
+
+@keyframes dialogAnim {
+    0% {transform: translateY(100vw)}
+    100% {transform: translateY(0);}
+}
+
+.dialog_wrap{
+    width: 100%;
+    height: 610px;
+    max-height: 80%;
+    background: #f2f2f2;
+    background-size: 100%;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+    position: fixed;
+    bottom: -1px;
+    left: 0;
+    z-index: 9999;
+    animation: dialogAnim .3s linear both;
+
+
+    .close_btn{
+        width: 60px;
+        height: 60px;
+        position: absolute;
+        top: -30px;
+        right: 0;
+    }
+
+
+    .goods{
+        display: flex;
+        padding-left: 12px;
+
+        image{
+            width: 118px;
+            height: 118px;
+            margin-top: -59px;
+        }
+
+        .goods_name{
+            padding: 3px 3px 0 12px;
+            width: calc(100% - 130px);
+
+            .name{
+                line-height: 30px;
+            }
+
+            .specification{
+                line-height: 16px;
+            }
+        }
     }
 }

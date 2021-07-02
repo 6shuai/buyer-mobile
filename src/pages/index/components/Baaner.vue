@@ -20,7 +20,7 @@
                 </swiper-item>
             </swiper>
             <view class="indicator_dots">
-                <view v-for="(d, i) in bannerData" :key="i" class="item" :class="{ active: currentIndex == i }"></view>
+                <view v-for="(d, i) in bannerList" :key="i" class="item" :class="{ active: currentIndex == i }"></view>
             </view>
         </view>
     </view>

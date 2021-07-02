@@ -2,9 +2,9 @@
     <view class="page_bg">
         <page-head />
         <view :style="{ marginTop: headHeight + 'px' }">
-            <view class="rank-tab">
+            <view class="rank_tab">
                 <view 
-                    v-for="(item, index) in tabList"
+                    v-for="(item, index) in rankText"
                     :key="index"
                     class="rank_tab_item"
                     @tap="currentTabIndex = index"
@@ -17,39 +17,47 @@
             </view>
             
             <tooltip 
-                text="围观一下「极限买手」的土豪霸霸们！"
+                :text="rankText[currentTabIndex].tip"
                 class="tooltip_wrap"
                 :hasOpcity="true"
             ></tooltip>    
 
             <view class="rank_wrap">
                 <scroll-view
-                    class="scroll-view"
+                    class="scroll_view"
                     :style="{ height: mainHeight + 'px' }"
                     scrollY="true"
-                    :scrollTop="0"
+                    :showScrollbar="false"
+                    :enhanced="true"
+                    :scrollTop="scrollTop"
                 >
                     
                 
-                    <rank-list></rank-list>
+                    <rank-list :rankText="rankText[currentTabIndex]"></rank-list>
                 </scroll-view>
+
+
+                <!-- 当前用户排名位置 -->
+                <view 
+                    @tap="handleToPosition"
+                    class="current_position">
+                    <image src="" />
+                    <view class="rank_number">12</view>
+                </view>
+
             </view>
 
-            <view class="current_position">
-                <image src="" />
-                <view class="rank_number">12</view>
-            </view>
 
 
 
-            <CustomTabBar  page="rank" />
+            <CustomTabBar page="rank" />
         </view>
 
     </view>
 </template>
 
 <script>
-import { toRefs, reactive, onMounted, computed } from 'vue'
+import { toRefs, reactive, onMounted, computed, nextTick } from 'vue'
 import PageHead from "../../components/PageHead.vue"
 import CustomTabBar from '../../components/custom-tab-bar/index.vue'
 import RankList from './components/List'
@@ -65,17 +73,45 @@ export default {
         const mainHeight = computed(() => {
 			return wx.getSystemInfoSync().windowHeight - store.state.headerHeight - 220;
 		})
-
+ 
 		
         onMounted(() => {
 
         })
 
+        const rankText = [
+            {
+                tip: '这里聚集着「极限买手」最能省钱的宝宝~',
+                countText: '下单量', 
+                priceText: '总计节省'
+            },
+            {
+                tip: '围观一下「极限买手」的土豪霸霸们！',
+                countText: '下单量', 
+                priceText: '总计消费'
+            },
+            {
+                tip: '「极限买手」运气最好的孩纸都在这里...',
+                countText: '中奖次数', 
+                priceText: '总奖金'
+            }
+        ]
+
+        //点击 自动滚动到自己排名位置
+        const handleToPosition = () => {
+            state.scrollTop = 699
+            nextTick(() => {
+                state.scrollTop = 700
+            })
+        }
+
         const state = reactive({
             headHeight,
             mainHeight,
             currentTabIndex: 0,           //当前tabbar index
-            tabList: ['../../image/rank_jixian.png', '../../image/rank_tuhao.png', '../../image/rank_caijia.png'],
+            scrollTop: 0,                 //滚动条位置
+            rankText,
+            handleToPosition,
         })
 
 
@@ -92,6 +128,12 @@ export default {
 </script>
 
 <style lang="less">
+    ::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+        color: transparent;
+    }
     .tooltip_wrap{
         margin-left: 24px;
         margin-bottom: 7px;
@@ -103,13 +145,15 @@ export default {
         overflow: hidden;
         backface-visibility: hidden;
         transform-style: preserve-3d;
+        position: relative;
 
-        .scroll-view{
-            min-height: 500px;
+        .scroll_view{
+            border-radius: 25px;
+            overflow: hidden;
         }
     }
 
-    .rank-tab{
+    .rank_tab{
         height: 30px;
         line-height: 30px;
         padding: 18px 12px 12px 12px;
@@ -142,8 +186,8 @@ export default {
         height: 102px;
         background: url('../../image/position_bg.png') center no-repeat;
         background-size: 100% 100%;
-        position: fixed;
-        bottom: 110px;
+        position: absolute;
+        bottom: 20px;
         right: 7px;
         z-index: 99999;
         text-align: center;

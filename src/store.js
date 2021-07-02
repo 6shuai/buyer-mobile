@@ -1,27 +1,51 @@
 import { createStore } from 'vuex'
 
 const state = {
+	userId: {},				 //userid
 	headerHeight: 0,         //顶部导航栏高度
 	showGoTopBtn: false,     //首页按钮是否显示回到顶部
 	goodsData: [],           //抢购列表
+	goodsDataState: {
+		orderedGoods: [],
+		orderedAuctions: [],
+		today: []
+	},      //抢购列表里面 所有的状态
+	
 	goodsTotalCount: 0,      //抢购列表总条数
 	goodsDetail: {},         //抢购列表 详情
+	showGoodsDetail: false,   		//抢购页是否打开了抢购详情
 	panicBuyDetail: undefined,      //抢购页 商品详情
-	allGoodsList: [],        //抢购列表  全部数据
-	placeList: [],           //场所列表
-	showPlace: false,        //是否显示场所列表
-	bannerList: [{}, {}],          //banner列表
-	currentPlace: {},        //当前场所
-	gamePanicBuyState: null, //游戏抢购阶段状态
-	homeGoodsState: {},      //抢购页商品状态通知  某个商品开始 或结束
-	realTimePrice: {},        //实时抢购价 
-	previewId: null,          //预览id
-	goodsGuessPrice: {},      //抢购猜价  价格
-	buySuccessMember: {},     //抢购成功的用户信息
-	wxPaymentInfo: {},        //微信支付 下单接口返回的prepay_id
+	allGoodsList: [],        		//抢购列表  全部数据
+	placeList: [],           		//场所列表
+	showPlace: undefined,        	//是否显示场所列表
+	bannerList: [{}, {}],    		//banner列表
+	currentPlace: undefined,        //当前场所
+	gamePanicBuyState: null, 		//游戏抢购阶段状态
+	homeGoodsState: undefined,      //抢购页商品状态通知  某个商品开始 或结束
+	realTimePrice: {},		        //实时抢购价 
+	previewId: null,          		 //预览id
+	goodsGuessPrice: {}, 		     //抢购猜价  价格
+	buySuccessMember: undefined,     //抢购成功的用户信息
+	wxPaymentInfo: undefined,        //微信支付 下单接口返回的prepay_id
+	buySuccessOrder: undefined,      //支付成功返回订单信息
+
+	buyMemberList: [],        		  //抢购用户列表
+	guessPriceMemberList: [],		  //猜价用户列表
+
+	commitAddressResult: undefined,   //完善物流信息  返回的状态
+
+	cityList: [],                     //场所 城市列表
+	currentPlace: '北京市 通州万达广场',
+
+	clearGoodsList: false,            //是否清空 抢购列表
 }
 
 const mutations = {
+	//设置userid  openid
+	SET_USER_ID(state, data){
+		state.userId = data
+	},
+
 	SET_HEADER_HEIGHT(state, num){
 		state.headerHeight = num
 	},
@@ -34,8 +58,14 @@ const mutations = {
 		state.goodsTotalCount = count
 	},
 
+	//抢购列表
 	SET_GOODS_DATA(state, data){
 		state.goodsData = data
+	},
+
+	//抢购列表  已返场订阅的商品    已预约的抢购   当天的抢购
+	SET_GOODS_DATA_STATE(state, data){
+		state.goodsDataState = data
 	},
 
 	SET_GOODS_DETAIL(state, data){
@@ -116,8 +146,32 @@ const mutations = {
 	//抢购返回 微信支付id
 	SET_WX_PAYMENT_INFO(state, data){
 		state.wxPaymentInfo = data
-	}
+	},
 
+	//支付成功后 返回的订单信息
+	SET_BUY_SUCCESS_ORDER(state, data){
+		state.buySuccessOrder = data
+	},
+
+	//抢购的用户列表
+	SET_BUY_MEMBER_LIST(state, data){
+		state.buyMemberList = data
+	},
+
+	//猜价的用户列表
+	SET_GUESS_PRICE_MEMBER_LIST(state, data){
+		state.guessPriceMemberList = data
+	},
+
+	//完善物流信息 反馈内容
+	SET_COMMIT_ADDRESS_RESULT(state, data){
+		state.commitAddressResult = data
+	},
+
+	//场所 城市列表
+	SET_CITYP_DATA_LIST(state, data){
+		state.cityList = data
+	}
 }
 
 const actions = {

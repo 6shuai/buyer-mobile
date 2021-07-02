@@ -1,10 +1,9 @@
-// AppID     wxda80a891596389ff
-// AppSecret 83349d11fba1703078d576eea70859f8
 import store from '../store'
 import { socketId } from './socketId'
 import { showToast } from '../utils/index'
 
 export default {
+    socketConIng: false,
     webSocketTask: null,
     heartBeatTimer: undefined,
     pongTime: null,  //收到心跳回复时间
@@ -12,8 +11,11 @@ export default {
     timer: undefined, 
 
     webSocketCon() {
-        let that = this;
+        if(this.socketConIng) return
+        this.socketConIng = true
 
+        let that = this;
+        console.log('socket连接')
         wx.showLoading({
             title: '加载中'
         })
@@ -49,52 +51,89 @@ export default {
             let data = JSON.parse(res.data)
             let code = data.id
             switch (code) {
-                case socketId.userInfo:   //登录成功
+                //登录成功
+                case socketId.userInfo:   
                     that.loginSuccess(data.userId)
                     break;
-                case socketId.loginError:  //登录失败
+                 //登录失败
+                case socketId.loginError: 
                     that.showError()
                     break;
-                case socketId.pong:        //心跳回应
+                //心跳回应
+                case socketId.pong:        
                     that.pongTime = new Date().getTime()
                     break;
-                case socketId.goodsTotalCount:  //抢购列表总条数
+                //抢购列表总条数
+                case socketId.goodsTotalCount:  
                     store.dispatch('setGoodsTotalCount', data.amount)
                     break;
-                case socketId.goodsList:   //抢购列表  登录成功后返回  或者  抢购页滑到顶部 或 底部时 加载更多返回
-                    if(!data.auctionList || !data.auctionList.length) return
-                    store.dispatch('setGoodsPageData', data.auctionList)
+                //抢购列表  登录成功后返回  或者  抢购页滑到顶部 或 底部时 加载更多返回
+                case socketId.goodsList:   
+                    let { auctionList, orderedGoods, orderedAuctions, today } = data
+                    if(!auctionList || !auctionList.length) return
+                    store.dispatch('setGoodsPageData', auctionList)
+                    if(orderedGoods) store.commit('SET_GOODS_DATA_STATE', { orderedGoods, orderedAuctions, today })
+                    wx.hideLoading()
                     break;
-                case socketId.goodsDetail:   //手机点击卡片  返回的抢购详情
+                //手机点击卡片  返回的抢购详情
+                case socketId.goodsDetail:   
                     store.dispatch('setGoodsDetail', data)
                     break;
-                case socketId.panicBuyDetail:  //抢购页的抢购详情
+                //抢购页的抢购详情
+                case socketId.panicBuyDetail:  
                     store.dispatch('setPanicBuyDetail', data)
                     break;
-                case socketId.placeList:      //场所列表
-                    store.commit('SET_PLACE_LIST', data.placeList)
+                //场所列表
+                case socketId.placeDataResponse:      
+                    store.commit('SET_PLACE_LIST', data.place)
                     break;
-                case socketId.bannerList:     //banner列表
+                //banner列表
+                case socketId.bannerList:     
                     store.commit('SET_BANNER_LIST', data.bannerList)
                     break;
-                case socketId.gameState:      //游戏抢购状态
-                    //游戏的状态，0预热阶段，1竞猜阶段，2开始倒计时，3出价阶段
+                //游戏抢购状态，0预热阶段，1竞猜阶段，2开始倒计时，3出价阶段
+                case socketId.gameState:      
                     store.commit('SET_GAME_PANIC_BUY_STATE', data.gameState)
                     break;
-                case socketId.goodsListState:  //抢购列表 当天的游戏开始和结束状态
+                //抢购列表 当天的游戏开始和结束状态
+                case socketId.goodsListState:  
                     store.commit('SET_CURRENT_DAY_GAME_STATE', data)
                     break;
-                case socketId.buyerError:         //返回失败消息
+                //返回失败消息
+                case socketId.buyerError:        
                     that.showError(data.message)
                     break;
-                case socketId.previewResponse:   //预览  返回的预览id
+                //预览  返回的预览id
+                case socketId.previewResponse:   
                     store.commit('SET_PREVIEW_ID', data.auctionId)
                     break;
-                case socketId.buySuccessMsg:      //抢购成功通知  返回抢购人的信息
-                    store.commit('SET_BUY_SUCCESS_MEMBER', data)
+                //抢购成功通知  返回抢购人的信息
+                case socketId.buySuccessMsg:      
+                    store.commit('SET_BUY_SUCCESS_MEMBER', data.info)
                     break;
-                case socketId.wxPayment:            //调起微信支付
+                //调起微信支付
+                case socketId.wxPayment:            
                     store.commit('SET_WX_PAYMENT_INFO', data)
+                    break;
+                //支付成功  返回订单信息
+                case socketId.buySuccessOrderInfo:   
+                    store.commit('SET_BUY_SUCCESS_ORDER', data)
+                    break;
+                //已购买的用户列表  抢购结束后 结算页展示
+                case socketId.buyMemberList:         
+                    store.commit('SET_BUY_MEMBER_LIST', data.result)
+                    break;
+                //已猜价的用户列表  抢购结束后 结算页展示
+                case socketId.guessPriceMemberList:   
+                    store.commit('SET_GUESS_PRICE_MEMBER_LIST', data.result)
+                    break;
+                //完善物流信息 反馈
+                case socketId.commitShippingAddressResponse:
+                    store.commit('SET_COMMIT_ADDRESS_RESULT', data)
+                    break;
+                //场所 城市 列表
+                case socketId.placeCityResponse:
+                    store.commit('SET_CITYP_DATA_LIST', data.regions)
                     break;
                 default:
                     break;
@@ -105,12 +144,14 @@ export default {
         // 关闭
         that.webSocketTask.onClose(err => {
             that.reconnection()
+            that.socketConIng = false
             console.log('socket 连接关闭')
         })
     
         // 错误
         that.webSocketTask.onError(err => {
             that.reconnection()
+            that.socketConIng = false
             console.log('socket 连接失败')
         });
 
@@ -137,53 +178,34 @@ export default {
 
     //登录
     login() {
-        let loginData = undefined
         let _this = this
-        // try {
-        //     loginData = wx.getStorageSync('loginData') ? JSON.parse(wx.getStorageSync('loginData')) : undefined
-        // } catch (e) {
-
-        // }
-        if(loginData){
-            this.quickLogin(loginData);
-        }else{
-            wx.login({
-                success (res) {
-                    if(res.code){
-                        _this.socketSendMessage(
-                            {
-                                id: socketId.codeLogin, // 消息id，3002
-                                platform : 3,
-                                token: res.code, 
-                                screenId: 29,
-                            }                
-                        )
-                    }else{
-                        _this.showError('获取登录凭证失败!')
-                    }
+        wx.login({
+            success (res) {
+                if(res.code){
+                    _this.socketSendMessage(
+                        {
+                            id: socketId.codeLogin, // 消息id，3002
+                            platform : 3,
+                            token: res.code, 
+                            screenId: 29
+                        }                
+                    )
+                }else{
+                    _this.showError('获取登录凭证失败!')
                 }
-            })
-        }
-    },
-
-    //快捷登录
-    quickLogin(loginData) {
-        this.socketSendMessage(
-            {
-                id: socketId.quickLogin,
-                screenId: 29,
-               ...loginData 
-            }                
-        )
+            }
+        })
     },
 
     //登录成功
     loginSuccess(userId){
-        wx.hideLoading()
-        wx.setStorage({
-            key: 'loginData',
-            data: JSON.stringify(userId)
+        store.commit('SET_USER_ID', userId)
+
+
+        this.socketSendMessage({ 
+            id: socketId.placeCityList
         })
+
     },
 
     //登录失败

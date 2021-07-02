@@ -8,7 +8,7 @@
             <view v-if="currentPage=='home'" class="location">
                 <view class="current_location text_overflow">
                     <image class="icon_location" src="../image/icon_location.png" />
-                    <text>北京市 通州万达广场</text>
+                    <text>{{ currentPlace }}</text>
                 </view>
                 <view 
                     class="toggle_location"
@@ -31,19 +31,25 @@
             </view>
 
 		</view>
-
 	</view>
 </template>
 
 <script>
-import { reactive, toRefs, onMounted  } from 'vue'
+import { reactive, toRefs, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
 export default {
     props: ['page'],
     setup(props) {
+        const store = useStore()
+
         onMounted(() => {
 			state.currentPage = props.page;
-		});
+		})
+        
+        //当前场所
+        const currentPlace = computed(() =>{
+            return store.state.currentPlace
+        })
 
         //回到首页
         const gotoHomePage = () => {
@@ -64,10 +70,10 @@ export default {
             headTop: top + 6,        //胶囊距离顶部高度
             currentPage: '',
             gotoHomePage,
-            handleShowPlaceList
+            handleShowPlaceList,
+            currentPlace
         })
 
-        const store = useStore()
         store.dispatch('setHeaderHeight', state.headHeight)
         return toRefs(state)
     }
@@ -81,7 +87,6 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 99999;
 
     &.home_page_head{
         background: rgba(0, 0, 0, 0.2);

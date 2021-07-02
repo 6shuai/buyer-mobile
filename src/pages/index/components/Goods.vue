@@ -1,7 +1,5 @@
 <template>
 	<view class="goods_warp">
-		
-		<view v-if="goodsLoading" class="goods_loading">加载中...</view>
 
 		<!-- 纯文字内容 -->
 
@@ -26,7 +24,7 @@
 			:key="index"
 			:id="'goods_item_' + index"
 			:class="{
-				'goods_item_active': item.status == 1 || item.status == 2,
+				'goods_item_active': item.status >= 2,
 				'goods_item_end': item.status == 0
 			}"
 			@tap.stop="handleDetail(item)"
@@ -161,37 +159,57 @@
 										</view>
 									</view>
 								</view>
+								
+								<!-- test -->
+								<view class="btn_wrap" v-if="index == 6">
+									<image 
+										mode="heightFix" 
+										src="../../../image/btn_start.png" 
+										@tap.stop.prevent="handleJoin(item, 'preview')"
+									/>
+								</view>
 
-								<view class="btn_wrap">
+								<view class="btn_wrap" v-else>
 									<!-- 
 										status 0 已结束  返场订阅 
 										status 1 未开始  预约抢购 
 										即将开始 或者 进行中 
 									-->
-									<!-- <image 
-										v-if="item.status == 0" 
+									<!-- 已结束 并且 已订阅 -->
+									<image 
+										v-if="item.status == 0 && store.state.goodsDataState.orderedGoods.includes(item.goodsId)" 
+										mode="heightFix" 
+										src="../../../image/btn_subscribe_2.png" 
+									/>
+									<!-- 已结束 返场订阅 -->
+									<image 
+										v-else-if="item.status == 0" 
 										mode="heightFix" 
 										src="../../../image/btn_subscribe_3.png" 
-										@tap.stop.prevent="handleGoBackSubscription(item.id)"
+										@tap.stop.prevent="handleGoBackSubscription(item.goodsId)"
 									/>
+									<!-- 未开始 并且 已预约 -->
+									<image 
+										v-else-if="item.status == 1 && store.state.goodsDataState.orderedAuctions.includes(item.id)" 
+										mode="heightFix" 
+										src="../../../image/btn_subscribe_1.png" 
+									/>
+									<!-- 未开始 预约抢购 -->
 									<image 
 										v-else-if="item.status == 1" 
 										mode="heightFix" 
 										src="../../../image/btn_subscribe_1.png" 
 										@tap.stop.prevent="handleSubscription(item.id)"
 									/>
+									<!-- 马上参加 -->
 									<image 
 										v-else
 										mode="heightFix" 
 										src="../../../image/btn_start.png" 
 										@tap.stop.prevent="handleJoin(item)"
-									/> -->
-									<image 
-										mode="heightFix" 
-										src="../../../image/btn_start.png" 
-										@tap.stop.prevent="handleJoin(item)"
 									/>
 								</view>
+
 							</view>
 						</view>
 					</view>
@@ -215,6 +233,8 @@
 			</view>
 		</view>
 
+		<!-- <view v-if="goodsLoading" class="goods_loading">加载中...</view> -->
+
 		<!-- 商品详情 -->
 		<goods-detail 
 			ref="goodsDetail"
@@ -226,14 +246,14 @@
 
 <script>
 import { reactive, toRefs, ref, computed, getCurrentInstance, watch } from "vue"
-import GoodsDetail from './GoodsDetail'
+import GoodsDetail  from  './GoodsDetail.vue'
 import mixin from '../../../mixins'
 import { socketId } from '../../../utils/socketId'
-import { useStore } from 'vuex';
+import { useStore } from 'vuex'
 import { showToast } from '../../../utils/index'
 
 export default {
-	emits: ['setScrollTop'],
+	emits: ['setScrollTop', 'showLogin'],
 	mounted(){
 		setTimeout(() => {
 			var query = wx.createSelectorQuery();
@@ -246,11 +266,13 @@ export default {
 		}, 100);
 	},
 
+	
 	setup(props, { emit }) {
+		const goodsDetail = ref(null)
 		const { findGoodsState, formatTime, priceFormat } = mixin()
 		const store = useStore()
 
-		const instance = getCurrentInstance()
+		const { proxy } = getCurrentInstance()
 
 		//商品列表 加载更多
 		const goodsDataPage = computed(() => {
@@ -274,34 +296,72 @@ export default {
 
 
 		//马上参加
-		const handleJoin = (item) => {
-			// store.dispatch('setGoodsDetail', item)
+		const handleJoin = (item, type) => {
+
+			let userInfo = '';
+            try {
+                userInfo = wx.getStorageSync('userInfo')
+            } catch (e) {
+            
+            }
+
+            if(!userInfo){
+                emit('showLogin')
+				return
+            }
+
 
 			//预览抢购
-			instance.appContext.config.globalProperties.$socket.socketSendMessage({
-				id: socketId.preview,
-				auctionId: item.id
-			})
+			if(type == 'preview'){
+				proxy.$socket.socketSendMessage({ 
+					id: socketId.preview,
+					auctionId: item.id
+				})
 
-			// wx.navigateTo({
-			// 	url: `./buyer/buyer?id=823492`
-			// })
+				return
+			}
+
+			wx.navigateTo({
+				url: `./buyer/buyer?id=${item.id}`
+			})
+		}
+
+		//检查是否已经授权
+		const hasAuth = () => {
+			let userInfo = wx.getStorageSync('userInfo')
+			if(userInfo) {
+				return true
+			}else{
+				return false
+			}
 		}
 
 		//返场订阅
-		const handleGoBackSubscription = () => {
+		const handleGoBackSubscription = goodsId => {
+			proxy.$socket.socketSendMessage({
+				id: socketId.goBackSubscribeGoods,
+				goodsId: goodsId
+			})
 			showToast('返场订阅成功', 'success')
 		}
 
 		//预约订阅
-		const handleSubscription = () => {
+		const handleSubscription = id => {
+			proxy.$socket.socketSendMessage({
+				id: socketId.subscribeGoods,
+				auctionId: id
+			})
 			showToast('预约抢购成功', 'success')
 		}
 
-		const goodsDetail = ref(null)		
-
 		//加载更多抢购 
 		const handleGoodsLoadMore = (type) => {
+			if(state.dataLoading) return
+			
+			setTimeout(() => {
+				state.dataLoading = false
+			}, 2000);
+
 			let data = state.goodsList
 
 			//触顶 并且 第一个抢购的index == 0   retur
@@ -309,10 +369,9 @@ export default {
 			if(type == 'top' && data[0].index == 0){
 				return
 			}else if(type == 'bottom' && data.length == store.state.goodsTotalCount){
-				return
+				// return
 			}
-
-			instance.appContext.config.globalProperties.$socket.socketSendMessage({
+			proxy.$socket.socketSendMessage({
 				id: socketId.getGoodsList,
 				baseIndex: type == 'top' ? data[0].index : data[data.length-1].index,   // 基于哪个索引请求
 				count: type == 'top' ? -state.pageNum : state.pageNum       // 请求多少个抢购，根据一屏显示的内容来，别一次太多，负数向前，正数向后
@@ -322,15 +381,20 @@ export default {
 
 		//返回的抢购商品数据
 		const goodsPage = data => {
+			// test
+			// state.goodsList = []
+
 			let type = 'top'
 			state.goodsLoading = false
 			data.forEach(item => {
-				item.beginTime = formatTime(item.beginTime)
-				item.status = findGoodsState(item.beginTime)
+				let time = JSON.parse(JSON.stringify(item.beginTime))
+				item.beginTime = formatTime(time)
+				item.status = findGoodsState(time, item.id)
 				item.marketValue = priceFormat(item.marketValue)
 				item.priceDeclineRate = priceFormat(item.priceDeclineRate)
+				state.goodsIds.push(item.index)
 			})
-
+			
 			if(!state.goodsList[0] || data[0].index > state.goodsList[0].index){
 				//滑动到底部加载的数据
 				state.goodsList = state.goodsList.concat(data)
@@ -352,21 +416,25 @@ export default {
 			state.goodsList.forEach((item, index) => {
 				if(item.id == data.auctionId){
 					//life: // 1表示开始，2表示结束
-					setate[index].status = data.life == 1 ? 3 : 0
+					state.goodsList[index].status = data.life == 1 ? 3 : 0
 				}
-			});
+			})
 		}
+
 		
 		const state = reactive({
+			dataLoading: false,     //防止多次请求  2秒钟内不再请求
 			goodsLoading: false,
 			goodsList: [],          //抢购列表 数据
+			goodsIds: [],
 			pageNum: 10,            //每次加载的抢购列表数量
  			handleJoin,
 			handleGoBackSubscription,
 			handleSubscription,
-			goodsDetail,
 			handleDetail,
 			handleGoodsLoadMore,
+			goodsDetail,
+			store
 		})
 
 		//goodsDataPage  列表滑到顶部 或 底部 加载更多的数据
@@ -374,7 +442,17 @@ export default {
 		//previewId       预览抢购的id
 		watch([goodsDataPage, homeGoodsState, previewId], ([newData, newState, newPreviewId], [oldData, oldState, oldPreviewId]) => {
 			if(JSON.stringify(newData) != JSON.stringify(oldData)){
+				//切换场所后 清空抢购列表
+				if(store.state.clearGoodsList) {
+					state.goodsList = []
+					state.goodsIds = []
+				}
+
+				if(state.goodsIds.includes(newData[0].index)){
+					return
+				}
 				goodsPage(newData)
+				store.state.clearGoodsList = false
 			}
 			
 			if(JSON.stringify(newState) != JSON.stringify(oldState)){
@@ -505,7 +583,7 @@ export default {
                     .goods_card_content{
                         width: 334px;
                         height: 117px;
-                        background: url(../../../image/card_before_bottom.png) left bottom no-repeat, url(../../../image/card_before.png) 0 0 no-repeat;
+                        background: url('../../../image/card_before_bottom.png') left bottom no-repeat, url('../../../image/card_before.png') 0 0 no-repeat;
                         box-shadow: 0px 0px 12px 0px rgba(187, 42, 68, 0.6), 0px 0px 36px 0px rgba(235, 155, 66, 0.6), 0px 0px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 12px 0px rgba(235, 155, 66, 0.6);
                         background-size: 334px 110px, 334px 117px;
                         border-radius: 12px;
@@ -681,13 +759,13 @@ export default {
 
 
                         &.not_start{
-                            background: url(../../../image/card_default_bottom.png) left bottom no-repeat, url(../../../image/card_before.png) 0 0 no-repeat;
+                            background: url('../../../image/card_default_bottom.png') left bottom no-repeat, url('../../../image/card_before.png') 0 0 no-repeat;
                             background-size: 668rpx 220rpx, 668rpx 234rpx;
                             box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.4), 0px 0px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 12px 0px rgba(185, 72, 255, 0.4);
                         }
 
                         &.end{
-                            background: url(../../../image/card_end_bottom.png) left bottom no-repeat, url(../../../image/card_end.png) 0 0 no-repeat;
+                            background: url('../../../image/card_end_bottom.png') left bottom no-repeat, url('../../../image/card_end.png') 0 0 no-repeat;
                             background-size: 668rpx 220rpx, 668rpx 234rpx;
                             box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.15), 0px 0px 4px 0px rgba(0, 0, 0, 0.4), 0px 0px 12px 0px rgba(185, 72, 255, 0.4);
                         }
@@ -704,7 +782,6 @@ export default {
                     display: inline-block;
                     border-radius: 4px;
                     padding: 3px 12px;
-                    z-index: 2000;
                     font-size: 10px;
                     height: auto;
                     line-height: 14px;

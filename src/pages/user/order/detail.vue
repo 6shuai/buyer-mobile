@@ -2,68 +2,71 @@
     <view class="order_detail">
         <view class="item">
             <view class="label">领取方式</view>
-            <view class="value">门店领取</view>
+            <view class="value">{{ buySuccessOrder.receiveType == 1 ? '门店领取' : '快递寄送' }}</view>
         </view>
         <view class="item">
             <view class="label">领取地址</view>
-            <view class="value">北京市朝阳区常营</view>
+            <view class="value">{{ buySuccessOrder.pickUpAddress }}</view>
         </view>
         <view class="item">
             <view class="label">领取时限</view>
-            <view class="value">2021-6-1 24:00</view>
+            <view class="value">{{ buySuccessOrder.expire }}</view>
         </view>
         <view class="item">
             <view class="label">订单编号</view>
             <view class="value">
-                <text>12345125121214</text>
+                <text>{{ buySuccessOrder.orderNumber }}</text>
                 <image @tap="handleCopy" src="../../../image/copy.png" />
             </view>
         </view>
         <view class="item">
             <view class="label">订单状态</view>
-            <view class="value">待领取</view>
+            <view class="value">{{ buySuccessOrder.orderState }}</view>
         </view>
         <view class="item">
             <view class="label">创建时间</view>
-            <view class="value">2021-6-1 14:00</view>
+            <view class="value">{{ buySuccessOrder.createTime }}</view>
         </view>
-        <view class="item">
+        <!-- <view class="item">
             <view class="label">领取时间</view>
             <view class="value">2021-6-1 14:00</view>
-        </view>
+        </view> -->
         <view class="item">
-            <view class="label">衣服订金</view>
-            <view class="value">500元</view>
+            <view class="label">已付订金</view>
+            <view class="value">{{ buySuccessOrder.paidAmount }}</view>
         </view>
         <view class="item">
             <view class="label">待付尾款</view>
-            <view class="value">500元</view>
+            <view class="value">{{ buySuccessOrder.toBePaid }}</view>
         </view>
         <view class="item">
-            <view class="label">定金交易号</view>
-            <view class="value">21412415235235235</view>
-        </view>
-        <view class="item">
-            <view class="label">尾款交易号</view>
-            <view class="value">21412415235235235</view>
+            <view class="label">支付交易号</view>
+            <view class="value">{{ buySuccessOrder.transactionNumber }}</view>
         </view>
     </view>
 
-    <view class="order_alert">
+    <view class="order_alert" v-if="buySuccessOrder.receiveType == 1">
         请尽快前往指定门店领取宝贝，领取时支付订单尾款。该订单90天内有效，过期后无法宝贝领取，所支付定金不予退还。
     </view>
 
 </template>
 
 <script>
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, computed } from 'vue'
+import { useStore } from 'vuex'
 export default {
     setup(){
+        const store = useStore()
+
+        //支付成功 订单信息
+        const buySuccessOrder = computed(() => {
+            return store.state.buySuccessOrder
+        })
 
         //复制订单编号
         const handleCopy = () => {
             wx.setClipboardData({
-                data: '一行白鹭上青天',
+                data: buySuccessOrder.orderNumber,
                 success (res) {
                     wx.getClipboardData({
                         success (res) {
@@ -75,7 +78,8 @@ export default {
         }
 
         const state = reactive({
-            handleCopy
+            handleCopy,
+            buySuccessOrder
         })
 
         return toRefs(state)

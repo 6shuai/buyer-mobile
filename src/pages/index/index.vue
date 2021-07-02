@@ -5,7 +5,15 @@
 
 		<page-head page="home" />
 
-		<view class="main" :style="{ marginTop: headHeight + 'px' }">
+		<!-- 登录窗口 -->
+		<login-dialog ref="loginDialog"></login-dialog>
+
+		<view class="main" 
+			:style="{ 
+				marginTop: headHeight + 'px',
+				zIndex: showGoodsDetail ? '9999' : '1'
+			}"
+		>
 			<scroll-view
 				:style="{ height: mainHeight + 'px' }"
 				:scrollY="true"
@@ -22,39 +30,63 @@
 
 				<goods 
 					ref="goodsList"
+					@showLogin="showLogin"
 					@setScrollTop="setScrollTop"
 				></goods>
 				
 			</scroll-view>
 
 		</view>
-
+		
+		<!-- 导航栏 -->
 		<custom-tab-bar 
 			@backToTop="backToTop"
 			page="home" />
+
 	</view>
 </template>
 
 <script>
-import PageHead from "../../components/PageHead.vue"
-import Banner from "./components/Baaner.vue"
-import Goods from "./components/Goods.vue"
-import CustomTabBar from "../../components/custom-tab-bar/index.vue"
+import PageHead from '../../components/PageHead.vue'
+import Banner from './components/Baaner.vue'
+import Goods from './components/Goods.vue'
+import CustomTabBar from '../../components/custom-tab-bar/index.vue'
 import Place from './components/Place.vue'
-import { reactive, ref, toRefs, computed, nextTick } from "vue"
-import { useStore } from "vuex"
+import LoginDialog from './components/LoginDialog.vue'
+import { reactive, ref, toRefs, computed, nextTick } from 'vue'
+import { useStore } from 'vuex'
 
 export default {
 	name: "Index",
 	setup(props) {
 		const store = useStore()
 		const goodsList = ref(null)
+		const loginDialog = ref(null)
+
 		const headHeight = computed(() => {
 			return store.state.headerHeight;
 		})
 		const mainHeight = computed(() => {
 			return wx.getSystemInfoSync().windowHeight - store.state.headerHeight;
 		})
+
+		//显示登录窗口
+		const showLogin = () => {
+			state.loginDialog.showLogin = true
+		}
+
+		// 商品详情窗口 是否显示了
+		const showGoodsDetail = computed(() => {
+			return store.state.showGoodsDetail
+		})
+
+		//获取地理位置
+		// wx.getLocation({
+		// 	type: 'wgs84',
+		// 	success (res) {
+		// 		console.log(res)
+		// 	}
+		// })
 		
 		const methods = {
 			handleChangeScroll(event){
@@ -90,12 +122,10 @@ export default {
 
 			//滚动到顶部时触发
 			handleToUpper(){
-				console.log('到顶部了')
-				state.bannerTop = 0;
-				store.dispatch('setShowGoTopBtn', false)
-				// state.scrollTop = state.goodsScrollTop + 223
-				// state.scrollStop = true;
-				state.goodsList.handleGoodsLoadMore('top')
+				// console.log('到顶部了')
+				// state.bannerTop = 0;
+				// store.dispatch('setShowGoTopBtn', false)
+				// state.goodsList.handleGoodsLoadMore('top')
 			},
 
 			//滚动到底部时触发
@@ -124,6 +154,8 @@ export default {
 
 
 		const state = reactive({
+			loginDialog,
+			showLogin,
 			headHeight,
 			mainHeight,
 			scrollTop: 0,       //滚动条位置
@@ -133,7 +165,8 @@ export default {
 			touchTop: 0,   //上划滚动条位置
 			goodsList,
 			...methods,
-			scrollStop: false
+			scrollStop: false,
+			showGoodsDetail
 		});
 
 		return toRefs(state);
@@ -143,8 +176,9 @@ export default {
 		Banner,
 		Goods,
 		CustomTabBar,
-		Place
-	},
+		Place,
+		LoginDialog
+	}
 };
 </script>
 
@@ -153,6 +187,7 @@ export default {
 		width: 100%;
 		overflow: hidden;
 		position: absolute;
+		z-index: 99;
 	}
 </style>
 

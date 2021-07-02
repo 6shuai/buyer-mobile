@@ -61,6 +61,7 @@ export default {
         bottom: 0;
         left: 0;
         z-index: 9999;
+        animation: dialogAnim .3s linear both;
 
         .close_btn{
             width: 60px;

@@ -9,7 +9,7 @@
                 <image :src="item.avatar" class="member_head_img" />
                 <view class="member_info">
                     <view class="title text_overflow">
-                        <text class="text_size_12">{{ item.nickname }}</text>
+                        <text class="text_size_12">{{ item.nickName }}</text>
                         <text class="count">抢到一件</text>
                     </view>
                     <view class="number_warp" v-if="item.price">

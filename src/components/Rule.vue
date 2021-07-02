@@ -69,13 +69,13 @@
                 <view class="rule_content">
                     <view class="explain">抢购开始前，竞猜本场的极限成交价（本场最后一单的成交价）；所有猜对的人根据以下规则平分竞猜奖金。</view>
 
-                    <view class="list" v-for="item in resData.guessRules" :key="item">
+                    <view class="list" v-for="(item, index) in guessRules" :key="index">
                         <view class="left">
                             <view class="example">
                                 <view class="state" v-for="(block, bIndex) in 6" :key="bIndex">
                                     <view 
                                         class="state_image"
-                                        :class="{ state_image_success: item.correctDigit == 1 ? bIndex == 2 : bIndex < item.correctDigit }"
+                                        :class="{ state_image_success: item.rule.includes(bIndex) }"
                                     ></view>
                                     <view class="dot" v-if="bIndex == 3">.</view>
                                 </view>
@@ -97,13 +97,58 @@
 </template>
 
 <script>
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, computed } from 'vue'
 export default {
     props: ['data', 'height'],
     setup(props) {
+
+
+        const guessRules = computed(() => {
+            let rules = []
+            console.log(props.data)
+            if(props.data.guessRules){
+                props.data.guessRules.forEach(item => {
+                    rules.push({
+                        ...item,
+                        rule: setPosition(item.correctDigit)
+                    })
+                });
+            }
+            return rules
+        })
+
+         //猜对的位置 
+        const setPosition = (num = 3) => {
+            let arr = []
+            switch (num) {
+                case 1:
+                    arr = [2]
+                    break;
+                case 2:
+                    arr = [2, 5]
+                    break;
+                case 3:
+                    arr = [0, 2, 5]
+                    break;
+                case 4:
+                    arr = [0, 2, 3, 5]
+                    break;
+                case 5:
+                    arr = [0, 2, 3, 5, 6]
+                    break;
+                case 6:
+                    arr = [0, 1, 2, 3, 5, 6]
+                    break;
+                default:
+                    break;
+            }
+            return arr
+        }
+
         const state = reactive({
             currentTabIndex: 0,
-            resData: props.data
+            resData: props.data,
+            guessRules
         })
 
         return toRefs(state)

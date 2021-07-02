@@ -250,7 +250,7 @@ export default {
             background: #5FB890;
             border-radius: 4px;
             position: absolute;
-            z-index: 0;
+            z-index: 999;
             top: 0;
             left: 45px;
             transition: all .1 ease-in;

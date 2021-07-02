@@ -17,11 +17,11 @@
                 <text class="name">马冬梅</text>
             </view>
             <view class="count">
-                <view class="label" v-if="index <= 2">下单量</view>
+                <view class="label" v-if="index <= 2">{{ rankText.countText }}</view>
                 <view class="value ali_font_bold"><text class="ali_font_bold count_number">105</text>单</view>
             </view>
             <view class="consume">
-                <view class="label" v-if="index <= 2">总计消费</view>
+                <view class="label" v-if="index <= 2">{{ rankText.priceText }}</view>
                 <view class="number_warp">
                     <text class="price_before ali_font_bold"
                         >￥</text
@@ -41,6 +41,7 @@
 <script>
 import { reactive, toRefs } from 'vue'
 export default {
+    props: ['rankText'],
     setup(){
         const state = reactive({
             resData: []
@@ -62,12 +63,12 @@ export default {
             color: @color_primary;
 
             &.active{
-                box-shadow: 0px 0px 18px rgba(248,164,70,0.4), 
-                            0px 2px 12px 2px rgba(236,206,173,0.8), 
-                            0px 0px 0.5px 0.5px rgba(236,225,213,0.6), 
-                            inset 0px 0px 18px 4px rgba(248,164,70,0.4), 
-                            inset 0px 0px 12px 2px rgba(236,206,173,0.8), 
-                            inset 0px 0px 0.5px 0.5px rgba(243,233,222,0.6);
+                box-shadow: inset 1px -1px 20px 0px rgba(248, 164, 70, 0.4), 
+                            inset 0px 0px 12px 2px rgba(236, 206, 173, 0.8), 
+                            0px 0px 1px 1px rgba(236, 225, 213, 0.59), 
+                            0px 0px 18px 4px rgba(248, 164, 70, 0.4), 
+                            -1px 1px 12px 2px rgba(236, 206, 173, 0.8), 
+                            0px 0px 1px 1px rgba(243, 233, 222, 0.6);
             }
 
             .left{
