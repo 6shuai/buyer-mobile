@@ -32,7 +32,6 @@
                     :scrollTop="scrollTop"
                 >
                     
-                
                     <rank-list :rankText="rankText[currentTabIndex]"></rank-list>
                 </scroll-view>
 
@@ -47,13 +46,13 @@
 
             </view>
 
-
-
-
-            <CustomTabBar page="rank" />
         </view>
 
     </view>
+
+    <!-- 自定义导航栏 -->
+    <custom-tab-bar page="rank" />
+
 </template>
 
 <script>
@@ -113,8 +112,6 @@ export default {
             rankText,
             handleToPosition,
         })
-
-
 
         return toRefs(state)
     },

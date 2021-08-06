@@ -357,9 +357,13 @@ export default {
 
             //开始抢购
             gameStart(){
-                if(state.guessPriceRef.showDialog){
-                    state.guessPriceRef.showDialog = false
-                    showToast('猜价阶段已结束')
+                try {
+                    if(state.guessPriceRef.showDialog){
+                        state.guessPriceRef.showDialog = false
+                        showToast('猜价阶段已结束')
+                    }
+                } catch (error) {
+                    
                 }
                 //抢购进度条
                 nextTick(() => {

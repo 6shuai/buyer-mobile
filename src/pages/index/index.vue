@@ -14,20 +14,25 @@
 				zIndex: showGoodsDetail ? '9999' : '1'
 			}"
 		>
+
+			
 			<scroll-view
-				:style="{ height: mainHeight + 'px' }"
+				:style="{ height: mainHeight + 'px', position: 'relative' }"
 				:scrollY="true"
 				:upper-threshold="20"
 				:scrollWithAnimation="false"
 				:scrollTop="scrollTop"
 				:enhanced="true"
 				:show-scrollbar="false"
+				:scroll-into-view="scrollIntoView"
 				@scroll="handleChangeScroll"
 				@scrolltoupper="handleToUpper"
 				@scrolltolower="handleToLower"
 			>
-				<banner :style="{ transform: `translateY(${bannerTop}px)`, transition: 'all .5s ease' }"  />
+				<!-- banner -->
+				<banner id="banner" :showBanner="showBanner" />
 
+				<!-- 抢购列表 -->
 				<goods 
 					ref="goodsList"
 					@showLogin="showLogin"
@@ -38,12 +43,13 @@
 
 		</view>
 		
-		<!-- 导航栏 -->
-		<custom-tab-bar 
-			@backToTop="backToTop"
-			page="home" />
-
 	</view>
+
+	<!-- 导航栏 -->
+	<custom-tab-bar 
+		@backToTop="backToTop"
+		page="home" />
+		
 </template>
 
 <script>
@@ -57,17 +63,16 @@ import { reactive, ref, toRefs, computed, nextTick } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
-	name: "Index",
 	setup(props) {
 		const store = useStore()
 		const goodsList = ref(null)
 		const loginDialog = ref(null)
 
 		const headHeight = computed(() => {
-			return store.state.headerHeight;
+			return store.state.headerHeight
 		})
 		const mainHeight = computed(() => {
-			return wx.getSystemInfoSync().windowHeight - store.state.headerHeight;
+			return wx.getSystemInfoSync().windowHeight - store.state.headerHeight
 		})
 
 		//显示登录窗口
@@ -80,36 +85,45 @@ export default {
 			return store.state.showGoodsDetail
 		})
 
-		//获取地理位置
-		// wx.getLocation({
-		// 	type: 'wgs84',
-		// 	success (res) {
-		// 		console.log(res)
-		// 	}
-		// })
+		let bannerHeight = null
 		
 		const methods = {
+			//监听抢购列表  滚动条
 			handleChangeScroll(event){
+
 				if(state.scrollStop) return
-				// console.log(event.target.scrollTop)
 				let s = event.target.scrollTop
+				
+				if(!bannerHeight){
+					var query = wx.createSelectorQuery()
+					//选择id
+					query.select('#banner').boundingClientRect()
+					query.exec(function (res) {
+						bannerHeight = res[0].height
+					})
+				}
 
 				//下滑
-				if(state.goodsScrollTop > s){
-					// state.bannerTop = state.touchTop;
-					state.bannerTop = state.touchTop >= state.bannerHeight ? -state.bannerHeight + (state.touchTop - s) : -state.touchTop + (state.touchTop - s)
-				}else{
+				if(state.goodsScrollTop > s && s > 10){
+					// state.bannerTop = state.touchTop
+					// state.bannerTop = state.touchTop >= state.bannerHeight ? -state.bannerHeight + (state.touchTop - s) : -state.touchTop + (state.touchTop - s)
+					state.showBanner = 'show'
+				}else if(s > bannerHeight && state.showBanner){
+					state.showBanner = 'hide'
 					//上滑
-					state.touchTop = s;
-					state.bannerTop = -s;
+					// state.touchTop = s
+					// state.bannerTop = -s
+				}else {
+					state.showBanner = ''
 				}
 
 				state.goodsScrollTop = s
 
+
 				if(state.bannerTop >= 0){
-					state.bannerTop = 0;
+					state.bannerTop = 0
 				}else if(state.bannerTop <= -state.bannerHeight){
-					state.bannerTop = -state.bannerHeight;
+					state.bannerTop = -state.bannerHeight
 				}
 
 				//显示回到顶部
@@ -122,10 +136,10 @@ export default {
 
 			//滚动到顶部时触发
 			handleToUpper(){
-				// console.log('到顶部了')
+				console.log('到顶部了')
 				// state.bannerTop = 0;
-				// store.dispatch('setShowGoTopBtn', false)
-				// state.goodsList.handleGoodsLoadMore('top')
+				store.dispatch('setShowGoTopBtn', false)
+				state.goodsList.handleGoodsLoadMore('top')
 			},
 
 			//滚动到底部时触发
@@ -145,9 +159,16 @@ export default {
 				})
 			},
 
-			//加载更多抢购数据后  设置滚动条位置
-			setScrollTop(num){
+			//往上加载更多抢购数据后  设置滚动条位置
+			setScrollTop(index){
 				// state.scrollTop = state.goodsScrollTop + num * 223
+				state.scrollStop = true
+
+				//滚动条位置停在最新数据的最后一个item
+				state.scrollIntoView = 'goods_item_' + index
+				setTimeout(() => {
+					state.scrollStop = false
+				}, 500)
 			}
 
 		}
@@ -161,12 +182,14 @@ export default {
 			scrollTop: 0,       //滚动条位置
 			goodsScrollTop: 0,
 			bannerTop: 0,
+			showBanner: '',
 			bannerHeight: 142,   //banner  高度
 			touchTop: 0,   //上划滚动条位置
 			goodsList,
 			...methods,
 			scrollStop: false,
-			showGoodsDetail
+			showGoodsDetail,
+			scrollIntoView: null,
 		});
 
 		return toRefs(state);

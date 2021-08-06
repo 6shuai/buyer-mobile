@@ -11,7 +11,6 @@
         </view>
         <view class="dialog_box clear">
             <view class="title">切换商场</view>
-
             <view class="picker_wrap">
                 <picker-view 
                     indicator-class="picker_indicator" 
@@ -158,7 +157,6 @@ export default {
         })
 
         watch(placeList, (newProp, oldProp) => {
-            console.log('newProp-------------->', newProp)
             if(newProp && newProp.length){
                 wx.hideLoading()
                 state.placeInfo = state.cityList[state.cityIndex].name + '  ' +  newProp[0].placeName

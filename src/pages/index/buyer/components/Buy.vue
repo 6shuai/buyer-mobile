@@ -180,11 +180,11 @@
                     class="buy_before"
                     :style="{ height: addressHeight + 'px' }"
                 >
-                    <view class="alert">
+                    <!-- <view class="alert">
                         <image src="../../../../image/warning.png" />
                         <view class="text" v-if="buySuccessOrder.receiveType == 1">请尽快前往指定门店领取宝贝，领取时支付订单尾款。该订单{{ goodsData.orderExpiration }}天内有效，过期后无法宝贝领取，所支付定金不予退还。</view>
                         <view class="text" v-if="buySuccessOrder.receiveType == 2">请先完善该宝贝的物流信息，否者宝贝将无法正常发货！</view>
-                    </view>
+                    </view> -->
                     <view 
                         class="buy_success_wrap"
                     >

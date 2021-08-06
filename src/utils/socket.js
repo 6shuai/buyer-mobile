@@ -4,14 +4,17 @@ import { showToast } from '../utils/index'
 
 export default {
     socketConIng: false,
+    socketConnectSuccess: false, //socket 是否连接成功
     webSocketTask: null,
     heartBeatTimer: undefined,
     pongTime: null,  //收到心跳回复时间
     overtime: 60,   //超时时长
+    pageShow: true,
     timer: undefined, 
 
     webSocketCon() {
-        if(this.socketConIng) return
+        this.pageShow = true
+        if(this.socketConIng || this.socketConnectSuccess) return
         this.socketConIng = true
 
         let that = this;
@@ -39,8 +42,10 @@ export default {
     
         // 打开连接
         that.webSocketTask.onOpen(res => {
+            console.log('socket 连接成功')
+            that.socketConnectSuccess = true
             that.login()
-            this.heartBeat()
+            that.heartBeat()
         });
     
     
@@ -52,7 +57,7 @@ export default {
             let code = data.id
             switch (code) {
                 //登录成功
-                case socketId.userInfo:   
+                case socketId.userInfo:  
                     that.loginSuccess(data.userId)
                     break;
                  //登录失败
@@ -145,6 +150,7 @@ export default {
         that.webSocketTask.onClose(err => {
             that.reconnection()
             that.socketConIng = false
+            that.socketConnectSuccess = false
             console.log('socket 连接关闭')
         })
     
@@ -152,9 +158,16 @@ export default {
         that.webSocketTask.onError(err => {
             that.reconnection()
             that.socketConIng = false
+            that.socketConnectSuccess = false
             console.log('socket 连接失败')
         });
 
+    },
+
+    //切到后台
+    pageOnHide() {
+        this.pageShow = false
+        console.log('切到后台')
     },
 
     //关闭 socket
@@ -201,7 +214,6 @@ export default {
     loginSuccess(userId){
         store.commit('SET_USER_ID', userId)
 
-
         this.socketSendMessage({ 
             id: socketId.placeCityList
         })
@@ -232,9 +244,11 @@ export default {
 
     //websocket断线重连  10秒重连一次
     reconnection() {
+        if(!this.pageShow) return
         this.pongTime = undefined;
         if (this.timer) clearTimeout(this.timer);
         this.timer = setTimeout(() => {
+            console.log('重连')
             this.webSocketCon();
         }, 10000);
     },

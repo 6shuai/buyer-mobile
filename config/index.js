@@ -1,6 +1,6 @@
 const config = {
   projectName: 'mobile',
-  date: '2021-3-10',
+  date: '2021-5-31',
   designWidth: 375,
   deviceRatio: {
     640: 2.34 / 2,

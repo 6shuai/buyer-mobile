@@ -1,95 +1,97 @@
 <template>
-    <view class="mask" v-if="showDialog"></view>
-    <view  
-        v-if="showDialog"
-        @catchtouchmove="handleCatchtouchmove"
-        class="dialog_wrap">
-        <view 
-            @tap="handleClosePage"
-            class="close_btn">
-            <image src="../../../image/close_icon.png" />
-        </view>
-        <view class="dialog_box">
-            <view class="goods">
-                <image :src="resData.goodsCover" />
-                <view class="goods_name text_size_16">
-                    <view class="name text_size_16">{{ resData.goodsName }}</view>
-                    <view class="specification text_size_12_by">{{ resData.goodsDescription }}</view>
-                </view>
+    <view v-show="showDialog">
+        <view class="mask" v-show="showDialog"></view>
+        <view  
+            v-if="showDialog"
+            @catchtouchmove="handleCatchtouchmove"
+            class="dialog_wrap">
+            <view 
+                @tap="handleClosePage"
+                class="close_btn">
+                <image src="../../../image/close_icon.png" />
             </view>
-
-            <view class="content">
-                <view class="game_time">
-                    <text>{{ resData.beginTime }}</text>
-                    <image v-if="resData.status == 0" mode="heightFix" src="../../../image/state_end.png" />
-                    <image v-else-if="resData.status == 1" mode="heightFix" src="../../../image/state_not_start.png" />
-                    <image v-else-if="resData.status == 2" mode="heightFix" src="../../../image/state_before.png" />
-                    <image v-else mode="heightFix" src="../../../image/state_start.png" />
-                </view>
-
-                <view class="timeline">
-                    <view class="timeline-item">
-                        <view class="time">{{ resData.beginTime.split(' ')[1] }}</view>
-                        <view class="line">
-                            <view class="dot"></view>
-                        </view>
-                        <view class="text">猜价阶段</view>
-                    </view>
-                    <view class="timeline-item">
-                        <view class="time">{{ findNewTime(resData.beginTime.split(' ')[1], resData.guessTime) }}</view>
-                        <view class="line">
-                            <view class="dot"></view>
-                        </view>
-                        <view class="text">抢购阶段</view>
-                    </view>
-                    <view class="timeline-item">
-                        <view class="time"> </view>
-                        <view class="line">
-                            <view class="dot"></view>
-                        </view>
-                        <view class="text">结果公示</view>
+            <view class="dialog_box">
+                <view class="goods">
+                    <image :src="resData.goodsCover" />
+                    <view class="goods_name text_size_16">
+                        <view class="name text_size_16">{{ resData.goodsName }}</view>
+                        <view class="specification text_size_12_by">{{ resData.goodsDescription }}</view>
                     </view>
                 </view>
+
+                <view class="content">
+                    <view class="game_time">
+                        <text>{{ resData.beginTime }}</text>
+                        <image v-if="resData.status == 0" mode="heightFix" src="../../../image/state_end.png" />
+                        <image v-else-if="resData.status == 1" mode="heightFix" src="../../../image/state_not_start.png" />
+                        <image v-else-if="resData.status == 2" mode="heightFix" src="../../../image/state_before.png" />
+                        <image v-else mode="heightFix" src="../../../image/state_start.png" />
+                    </view>
+
+                    <view class="timeline">
+                        <view class="timeline-item">
+                            <view class="time">{{ resData.beginTime.split(' ')[1] }}</view>
+                            <view class="line">
+                                <view class="dot"></view>
+                            </view>
+                            <view class="text">猜价阶段</view>
+                        </view>
+                        <view class="timeline-item">
+                            <view class="time">{{ findNewTime(resData.beginTime.split(' ')[1], resData.guessTime) }}</view>
+                            <view class="line">
+                                <view class="dot"></view>
+                            </view>
+                            <view class="text">抢购阶段</view>
+                        </view>
+                        <view class="timeline-item">
+                            <view class="time"> </view>
+                            <view class="line">
+                                <view class="dot"></view>
+                            </view>
+                            <view class="text">结果公示</view>
+                        </view>
+                    </view>
+                </view>
+
+                <view class="rule_box">
+                    <rule :data="resData" :height="pageHeight- 290"></rule>
+                </view>
+
             </view>
 
-            <view class="rule_box">
-                <rule :data="resData" :height="pageHeight- 290"></rule>
+            <!-- 按钮状态 -->
+            <view class="btn_state">
+                <image 
+                    v-if="resData.status == 0 && store.state.goodsDataState.orderedGoods.includes(resData.goodsId)" 
+                    mode="heightFix" 
+                    src="../../../image/btn_subscribe_2.png" 
+                />
+                <image 
+                    v-else-if="resData.status == 0" 
+                    mode="heightFix" 
+                    src="../../../image/btn_subscribe_3.png" 
+                    @tap.stop.prevent="handleGoBackSubscription(resData.goodsId)"
+                />
+                <image 
+                    v-else-if="resData.status == 1 && store.state.goodsDataState.orderedAuctions.includes(resData.id)" 
+                    mode="heightFix" 
+                    src="../../../image/btn_subscribe_1.png" 
+                />
+                <image 
+                    v-else-if="resData.status == 1" 
+                    mode="heightFix" 
+                    src="../../../image/btn_subscribe_1.png" 
+                    @tap.stop.prevent="handleSubscription(resData.id)"
+                />
+                <image 
+                    v-else 
+                    mode="heightFix" 
+                    src="../../../image/btn_start.png" 
+                    @tap.stop.prevent="handleJoin(resData)"
+                />
             </view>
 
         </view>
-
-        <!-- 按钮状态 -->
-        <view class="btn_state">
-            <image 
-                v-if="resData.status == 0 && store.state.goodsDataState.orderedGoods.includes(resData.goodsId)" 
-                mode="heightFix" 
-                src="../../../image/btn_subscribe_2.png" 
-            />
-            <image 
-                v-else-if="resData.status == 0" 
-                mode="heightFix" 
-                src="../../../image/btn_subscribe_3.png" 
-                @tap.stop.prevent="handleGoBackSubscription(resData.goodsId)"
-            />
-            <image 
-                v-else-if="resData.status == 1 && store.state.goodsDataState.orderedAuctions.includes(resData.id)" 
-                mode="heightFix" 
-                src="../../../image/btn_subscribe_1.png" 
-            />
-            <image 
-                v-else-if="resData.status == 1" 
-                mode="heightFix" 
-                src="../../../image/btn_subscribe_1.png" 
-                @tap.stop.prevent="handleSubscription(resData.id)"
-            />
-            <image 
-                v-else 
-                mode="heightFix" 
-                src="../../../image/btn_start.png" 
-                @tap.stop.prevent="handleJoin(resData)"
-			/>
-        </view>
-
     </view>
 </template>
 
@@ -218,7 +220,6 @@ export default {
     @import url('../../../variables.less');
     .dialog_wrap{
         
-
         .content{
             padding: 7px 24px;
 

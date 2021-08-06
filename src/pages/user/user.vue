@@ -85,9 +85,12 @@
 
             </view>
 
-            <CustomTabBar  page="user" />
         </view>
     </view>
+
+    <!-- 自定义导航栏 -->
+    <custom-tab-bar page="user" />
+
 </template>
 
 <script>
@@ -125,8 +128,6 @@ export default {
             handleNavigateTo,
             userInfo: loginData
         })
-
-
 
         return toRefs(state)
     },

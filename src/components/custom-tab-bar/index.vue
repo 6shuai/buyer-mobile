@@ -43,6 +43,7 @@ export default {
 		});
 		const switchTab = (url) => {
 			// state.selected = data.index
+			//tabbar 跳转
 			wx.switchTab({
 				url: url,
 			});

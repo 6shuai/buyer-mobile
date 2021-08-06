@@ -22,7 +22,7 @@
 			class="goods_item clearfix"
 			v-for="(item, index) in goodsList"
 			:key="index"
-			:id="'goods_item_' + index"
+			:id="'goods_item_' + item.index"
 			:class="{
 				'goods_item_active': item.status >= 2,
 				'goods_item_end': item.status == 0
@@ -324,6 +324,15 @@ export default {
 			wx.navigateTo({
 				url: `./buyer/buyer?id=${item.id}`
 			})
+
+			// 只允许从相机扫码
+			// wx.scanCode({
+			// 	onlyFromCamera: true,
+			// 	success (res) {
+			// 		let { result } = res.result
+			// 		console.log(res, res.result)
+			// 	}
+			// })
 		}
 
 		//检查是否已经授权
@@ -357,26 +366,23 @@ export default {
 		//加载更多抢购 
 		const handleGoodsLoadMore = (type) => {
 			if(state.dataLoading) return
-			
-			setTimeout(() => {
-				state.dataLoading = false
-			}, 2000);
 
 			let data = state.goodsList
 
+
 			//触顶 并且 第一个抢购的index == 0   retur
 			//触底 并且 抢购列表的length == 抢购总数时  return
-			if(type == 'top' && data[0].index == 0){
-				return
-			}else if(type == 'bottom' && data.length == store.state.goodsTotalCount){
-				// return
-			}
+			// if(type == 'top' && data[0].index == 0){
+			// 	return
+			// }else if(type == 'bottom' && data.length == store.state.goodsTotalCount){
+			// 	return
+			// }
 			proxy.$socket.socketSendMessage({
 				id: socketId.getGoodsList,
 				baseIndex: type == 'top' ? data[0].index : data[data.length-1].index,   // 基于哪个索引请求
 				count: type == 'top' ? -state.pageNum : state.pageNum       // 请求多少个抢购，根据一屏显示的内容来，别一次太多，负数向前，正数向后
 			})
-			state.goodsLoading = true
+			// state.goodsLoading = true
 		}
 
 		//返回的抢购商品数据
@@ -404,7 +410,7 @@ export default {
 				state.goodsList = data.concat(state.goodsList)
 				type = 'top'
 				//设置滚动条位置
-				emit('setScrollTop', data.length)
+				emit('setScrollTop', data[data.length-1].index)
 			}
 
 			//存储抢购列表全部数据
@@ -441,7 +447,7 @@ export default {
 		//homeGoodsState  商品的状态  开始或结束
 		//previewId       预览抢购的id
 		watch([goodsDataPage, homeGoodsState, previewId], ([newData, newState, newPreviewId], [oldData, oldState, oldPreviewId]) => {
-			if(JSON.stringify(newData) != JSON.stringify(oldData)){
+			if(newData.length && JSON.stringify(newData) != JSON.stringify(oldData)){
 				//切换场所后 清空抢购列表
 				if(store.state.clearGoodsList) {
 					state.goodsList = []
@@ -479,6 +485,7 @@ export default {
 @import '../../../variables.less';
 .goods_warp{
     margin: 24px 12px 0 12px;
+	// padding-top: 128px;
     padding-bottom: 82px;
 
     .goods_loading{
@@ -539,7 +546,7 @@ export default {
                 position: absolute;
                 top: 0;
                 left: 0;
-                z-index: 99;
+                z-index: 66;
             }
 
             &_line{

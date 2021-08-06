@@ -124,7 +124,7 @@ export default {
             clearTimeout(state.timer)
             let newPrice = price - priceDecline
             
-            if(newPrice <=0 ) {
+            if(newPrice <= 0) {
                 newPrice = 0
                 state.realTimePrice = priceFormat(newPrice)
                 store.dispatch('setRealTimePrice', state.realTimePrice)
