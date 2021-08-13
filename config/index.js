@@ -15,6 +15,7 @@ const config = {
   },
   copy: {
     patterns: [
+      { from: 'src/custom-tab-bar/', to: `dist/${process.env.TARO_ENV}/custom-tab-bar/` }
     ],
     options: {
     }

@@ -27,7 +27,7 @@
                 class="logo"
                 @tap="gotoHomePage"
             >
-                <image src="../image/logo.png" />
+                <image src="../image/logo_jxms.png" />
             </view>
 
 		</view>
@@ -61,6 +61,9 @@ export default {
         //点击切换 显示场所列表
         const handleShowPlaceList = () => {
             store.commit('SET_SHOW_PLACE_LIST', true)
+            getCurrentPages()[0].getTabBar().setData({
+                showTabBar: false
+            })
         }
 
         //获取胶囊信息

@@ -1,5 +1,5 @@
 <!--miniprogram/custom-tab-bar/index.wxml-->
-<view class="tab-bar">
+<view class="tab-bar" wx:if="{{showTabBar}}">
   <view 
     wx:for="{{list}}" 
     wx:key="index" 
@@ -9,9 +9,16 @@
     bindtap="switchTab"
   >
     <cover-image 
+      wx:if="{{showGoTopBtn && index == selected && index == 0}}"
+      class="tab_bar_home"
+      src="../image/tab_bar_home_goback.png"
+      bindtap="backGotop"
+    ></cover-image>
+    <cover-image 
+      wx:else
       class="{{ index ? '' : 'tab_bar_home' }}"
       src="{{selected === index ? item.selectedIconPath : item.iconPath}}"
     ></cover-image>
-    {{selected}}
   </view>
 </view>
+

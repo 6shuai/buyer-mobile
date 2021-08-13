@@ -51,7 +51,7 @@
     </view>
 
     <!-- 自定义导航栏 -->
-    <custom-tab-bar page="rank" />
+    <!-- <custom-tab-bar page="rank" /> -->
 
 </template>
 
@@ -65,6 +65,9 @@ import { useStore } from "vuex"
 
 export default {
     setup(props) {
+        getCurrentPages()[0].getTabBar().setData({
+			selected: 1
+		})
         const store = useStore();
         const headHeight = computed(() => {
 			return store.state.headerHeight;

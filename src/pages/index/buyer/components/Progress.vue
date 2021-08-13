@@ -80,13 +80,11 @@ export default {
         //priceDecline              每次下降多少钱
         //priceDeclineFrequency     多少时间下降一次
         let { currentPrice, priceDeclineRate, priceDeclineFrequency, priceDecline, marketValue } = props.goodsData 
-        priceDecline = priceDecline
-        priceDeclineRate.full = priceDeclineRate.full
         priceDeclineFrequency = priceDeclineFrequency ? priceDeclineFrequency : 1
+        let price = currentPrice.full
 
         //猜价价格  在进度条出现的位置
         const guessPosition = computed(() => {
-            let price = currentPrice.full
             let guess = props.guessPrice.full
             if(price && guess){
                 let num = Number(guess) / Number(price) * 100
@@ -100,9 +98,11 @@ export default {
         const setProgressHeight = () => {
             state.barHeight = (currentPrice.full / marketValue.full) * 100
             setTimeout(() => {
+
+                //进度条高度从100 到 0 的时长
                 let animation = wx.createAnimation({
-                    duration: (currentPrice.full / priceDeclineRate.full) * 60000,
-                    timingFunction: 'ease-in-out',
+                    duration: (currentPrice.full / priceDeclineRate.full) * 60 * 1000,
+                    timingFunction: 'linear',
                 })
                 animation.height(0).step()
     
@@ -115,22 +115,26 @@ export default {
                 })
             }, 200);
 
-
-            setRealTimePrice(currentPrice.full, priceDeclineFrequency)
+            //抢购开始, 开始降价
+            setRealTimePrice()
+            state.timer = setInterval(() => {
+                setRealTimePrice()
+            }, priceDeclineFrequency * 1000);
         }
 
         //实时价格
-        const setRealTimePrice = (price, priceDeclineFrequency) => {
-            clearTimeout(state.timer)
-            let newPrice = price - priceDecline
+        const setRealTimePrice = () => {
+
+            price -= priceDecline
             
-            if(newPrice <= 0) {
-                newPrice = 0
-                state.realTimePrice = priceFormat(newPrice)
+            if(price <= 0) {
+                price = 0
+                state.realTimePrice = priceFormat(price)
                 store.dispatch('setRealTimePrice', state.realTimePrice)
+                clearInterval(state.timer)
                 return
             }
-            state.realTimePrice = priceFormat(newPrice)
+            state.realTimePrice = priceFormat(price)
             store.dispatch('setRealTimePrice', state.realTimePrice)
 
             //实时价格 标签 位置
@@ -140,11 +144,6 @@ export default {
                 if(!res[0] || !res[0].height) return
                 state.currentPriceTop = 100 - res[0].height / state.progressBarHeight * 100
             })
-
-
-            state.timer = setTimeout(() => {
-                setRealTimePrice(newPrice, priceDeclineFrequency)
-            }, priceDeclineFrequency * 1000);
         }
 
         //抢购结束
@@ -159,7 +158,7 @@ export default {
 
         //页面销毁
         onUnmounted(() => {
-            clearTimeout(state.timer)
+            clearInterval(state.timer)
         })
 
         const state = reactive({
@@ -177,6 +176,7 @@ export default {
         return toRefs(state)
     }
 }
+
 </script>
 
 <style lang="less">
@@ -268,8 +268,13 @@ export default {
                 border: 14px solid #00000000;
                 border-right-color: #5FB890;
                 top: 0;
-                left: -27px;
+                left: -25px;
             }
+        }
+
+        .current_price{
+            border-top-right-radius: 4px;
+            border-bottom-left-radius: 4px;
         }
 
         .guess_price{

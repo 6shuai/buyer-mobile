@@ -1,15 +1,17 @@
 import { createApp } from 'vue'
+import './utils/event'
 import store from './store'
 import socket from './utils/socket.js'
 import './app.less'
 
 const App = createApp({
   onShow (options) {
-      socket.webSocketCon()
+    console.log('onShow')
+    socket.webSocketCon()
   },
   onHide (options) {
     socket.pageOnHide()
-  },
+  }
   // 入口组件不需要实现 render 方法，即使实现了也会被 taro 所覆盖
 })
 
@@ -27,7 +29,7 @@ const updateManager = wx.getUpdateManager()
 
 updateManager.onCheckForUpdate(function (res) {
   // 请求完新版本信息的回调
-  console.log(res.hasUpdate)
+  // console.log(res.hasUpdate)
 })
 
 updateManager.onUpdateReady(function () {
@@ -52,4 +54,8 @@ updateManager.onUpdateFailed(function () {
   })
 })
 
+
 export default App
+
+
+

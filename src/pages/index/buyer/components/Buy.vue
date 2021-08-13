@@ -10,7 +10,7 @@
         </view>
         <view class="dialog_box">
             <view class="goods">
-                <image :src="goodsData.goods.cover" />
+                <view class="goods_cover" :style="{ background: `url(${goodsData.goods.cover}) center no-repeat`, backgroundSize: '100% 100%' }"></view>
                 <view class="goods_name text_size_16">
                     <view class="name text_size_16 text_overflow">{{ goodsData.goods.displayName }}</view>
                     <view class="specification text_size_12_by">{{ goodsData.goods.description }}</view>

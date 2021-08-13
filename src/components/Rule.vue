@@ -6,7 +6,7 @@
                     v-for="(item, index) in ['极限抢购', '极限猜价']"
                     :key="index"
                     class="item"
-                    @tap="currentTabIndex=index"
+                    @tap="handleChangeTab(index)"
                     :class="{ active: currentTabIndex==index }">
                     <text>{{item}}</text>
                     <view class="bg"></view>
@@ -105,7 +105,6 @@ export default {
 
         const guessRules = computed(() => {
             let rules = []
-            console.log(props.data)
             if(props.data.guessRules){
                 props.data.guessRules.forEach(item => {
                     rules.push({
@@ -145,10 +144,16 @@ export default {
             return arr
         }
 
+        const handleChangeTab = (index) => {
+            state.currentTabIndex = index
+            console.log(index, state.currentTabIndex)
+        }
+
         const state = reactive({
             currentTabIndex: 0,
             resData: props.data,
-            guessRules
+            guessRules,
+            handleChangeTab
         })
 
         return toRefs(state)

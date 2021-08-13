@@ -99,6 +99,9 @@ export default {
         //关闭
         const handleClosePage = () => {
             store.commit('SET_SHOW_PLACE_LIST', false)
+            getCurrentPages()[0].getTabBar().setData({
+                showTabBar: true
+            })
         }
 
         //选择城市

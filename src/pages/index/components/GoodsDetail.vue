@@ -3,7 +3,6 @@
         <view class="mask" v-show="showDialog"></view>
         <view  
             v-if="showDialog"
-            @catchtouchmove="handleCatchtouchmove"
             class="dialog_wrap">
             <view 
                 @tap="handleClosePage"
@@ -12,7 +11,7 @@
             </view>
             <view class="dialog_box">
                 <view class="goods">
-                    <image :src="resData.goodsCover" />
+                    <view class="goods_cover" :style="{ background: `url(${resData.goodsCover}) center no-repeat`, backgroundSize: '100% 100%' }"></view>
                     <view class="goods_name text_size_16">
                         <view class="name text_size_16">{{ resData.goodsName }}</view>
                         <view class="specification text_size_12_by">{{ resData.goodsDescription }}</view>
@@ -125,10 +124,13 @@ export default {
 
         const handleShowPage = data => {
             proxy.$socket.socketSendMessage({
-				id: socketId.getGoodsDetail,
+                id: socketId.getGoodsDetail,
 				auctionId: data.id
 			})
-
+            
+            getCurrentPages()[0].getTabBar().setData({
+                showTabBar: false
+            })
             wx.showLoading({
                 title: '加载中'
             })
@@ -145,6 +147,9 @@ export default {
             state.showDialog = false
             store.state.showGoodsDetail = false
             wx.hideLoading()
+            getCurrentPages()[0].getTabBar().setData({
+                showTabBar: true
+            })
         }
 
         //马上参加

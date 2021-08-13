@@ -22,203 +22,211 @@
 			class="goods_item clearfix"
 			v-for="(item, index) in goodsList"
 			:key="index"
-			:id="'goods_item_' + item.index"
+			:id="'goods_item_' + index"
 			:class="{
 				'goods_item_active': item.status >= 2,
 				'goods_item_end': item.status == 0
 			}"
-			@tap.stop="handleDetail(item)"
 		>
-			<view 
-				class="goods_timeline"
+			<view
+				class="goods_item_page"
+				v-for="(good, gindex) in item"
+				:key="gindex"
+				@tap.stop="handleDetail(good)"
 			>
-				<view class="goods_timeline_top"></view>
-				<view class="goods_timeline_line"></view>
-			</view>
-
-			<view class="goods_content">
-				<view class="time">
-					<text class="time_text">{{ item.beginTime }}</text>
+				<view 
+					class="goods_timeline"
+				>
+					<view class="goods_timeline_top"></view>
+					<view class="goods_timeline_line"></view>
 				</view>
 
-				<view class="goods_info">
-					<view class="state_wrap">
-						<image v-if="item.status == 0" mode="heightFix" src="../../../image/state_end.png" />
-						<image v-else-if="item.status == 1" mode="heightFix" src="../../../image/state_not_start.png" />
-						<image v-else-if="item.status == 2" mode="heightFix" src="../../../image/state_before.png" />
-						<image v-else mode="heightFix" src="../../../image/state_start.png" />
+				<view class="goods_content">
+					<view class="time">
+						<text class="time_text">{{ good.beginTime }}</text>
 					</view>
 
-					<view class="goods_card">
-						<view 
-							class="goods_card_content"
-							:class="item.status==0 ? 'end' : item.status==1 ? 'not_start' : ''"
-						>
-							<view class="goods_introduce clearfix">
-								<view class="goods_image">
-									<image :src="item.goodsCover" />
-								</view>
-								<view class="goods_right_text">
-									<view class="title text_overflow"
-										>{{ item.goodsName }}</view
-									>
-									<view class="desc text_size_12_by text_overflow"
-										>{{ item.goodsDescription }}</view
-									>
-									<view class="bonus_wrap">
-										<view 
-											class="bonus_btn"
-											:class="item.status==0 ? 'end' : item.status==1 ? 'not_start' : ''"
+					<view class="goods_info">
+						<view class="state_wrap">
+							<image v-if="good.status == 0" mode="heightFix" src="../../../image/state_end.png" />
+							<image v-else-if="good.status == 1" mode="heightFix" src="../../../image/state_not_start.png" />
+							<image v-else-if="good.status == 2" mode="heightFix" src="../../../image/state_before.png" />
+							<image v-else mode="heightFix" src="../../../image/state_start.png" />
+						</view>
+
+						<view class="goods_card">
+							<view 
+								class="goods_card_content"
+								:class="good.status==0 ? 'end' : good.status==1 ? 'not_start' : ''"
+							>
+								<view class="goods_introduce clearfix">
+									<view 
+										class="goods_image"
+										:style="{ background: `url(${item.goodsCover}) center no-repeat`, backgroundSize: '100% 100%' }"
+									></view>
+									<view class="goods_right_text">
+										<view class="title text_overflow"
+											>{{ good.goodsName }}</view
 										>
-											<text class="font_spacing_06"
-												>猜价奖金</text
+										<view class="desc text_size_12_by text_overflow"
+											>{{ good.goodsDescription }}</view
+										>
+										<view class="bonus_wrap">
+											<view 
+												class="bonus_btn"
+												:class="good.status==0 ? 'end' : good.status==1 ? 'not_start' : ''"
 											>
+												<text class="font_spacing_06"
+													>猜价奖金</text
+												>
+												<text
+													class="ali_font_bold price_num"
+													>{{ good.totalGuessAward  || 0 }}</text
+												>
+												<text>元</text>
+											</view>
+										</view>
+									</view>
+								</view>
+
+								<view class="goods_card_bottom clearfix">
+									<view class="price">
+										<view class="show_price">
 											<text
-												class="ali_font_bold price_num"
-												>{{ item.totalGuessAward  || 0 }}</text
-											>
-											<text>元</text>
+												v-if="good.status == 0"
+												class="end"
+											>极限成交价</text>
+											<view class="text_overflow" v-else>
+												<text class="label"
+													>官方售价</text
+												>
+												<view 
+													class="number_warp"
+													:class="good.status==0 ? 'end' : good.status==1 ? 'not_start' : ''"
+												>
+													<text class="price_before ali_font_bold"
+														>￥</text
+													>
+													<text class="price_num ali_font_bold"
+														>{{ good.marketValue.int }}</text
+													>
+													<text class="price_after ali_font_bold"
+														>{{ good.marketValue.decimals }}</text
+													>
+												</view>
+												<text class="text_size_10 origin">起</text>
+											</view>
 										</view>
-									</view>
-								</view>
-							</view>
-
-							<view class="goods_card_bottom clearfix">
-								<view class="price">
-									<view class="show_price">
-										<text
-											v-if="item.status == 0"
-											class="end"
-										>极限成交价</text>
-										<view class="text_overflow" v-else>
-											<text class="label"
-												>官方售价</text
-											>
+										<view class="show_price depreciate text_overflow">
 											<view 
-												class="number_warp"
-												:class="item.status==0 ? 'end' : item.status==1 ? 'not_start' : ''"
-											>
-												<text class="price_before ali_font_bold"
-													>￥</text
-												>
-												<text class="price_num ali_font_bold"
-													>{{ item.marketValue.int }}</text
-												>
-												<text class="price_after ali_font_bold"
-													>{{ item.marketValue.decimals }}</text
-												>
+												v-if="good.status == 0"
+												class="end">
+												<view class="number_warp">
+													<text class="price_before ali_font_bold"
+														>￥</text
+													>
+													<text class="price_num ali_font_bold"
+														>{{ good.marketValue.int }}</text
+													>
+													<text class="price_after ali_font_bold"
+														>{{ good.marketValue.decimals }}</text
+													>
+												</view>
+												<view class="number_warp original_price">
+													<text class="price_before ali_font_bold"
+														>￥</text
+													>
+													<text class="price_num ali_font_bold"
+														>{{ good.marketValue.int }}</text
+													>
+													<text class="price_after ali_font_bold"
+														>{{ good.marketValue.decimals }}</text
+													>
+												</view>
 											</view>
-											<text class="text_size_10 origin">起</text>
-										</view>
-									</view>
-									<view class="show_price depreciate text_overflow">
-										<view 
-											v-if="item.status == 0"
-											class="end">
-											<view class="number_warp">
-												<text class="price_before ali_font_bold"
-													>￥</text
+											<view v-else>
+												<text class="label"
+													>每分钟降</text
 												>
-												<text class="price_num ali_font_bold"
-													>{{ item.marketValue.int }}</text
+												<view 
+													class="number_warp"
+													:class="good.status==0 ? 'end' : good.status==1 ? 'not_start' : ''"
 												>
-												<text class="price_after ali_font_bold"
-													>{{ item.marketValue.decimals }}</text
-												>
-											</view>
-											<view class="number_warp original_price">
-												<text class="price_before ali_font_bold"
-													>￥</text
-												>
-												<text class="price_num ali_font_bold"
-													>{{ item.marketValue.int }}</text
-												>
-												<text class="price_after ali_font_bold"
-													>{{ item.marketValue.decimals }}</text
-												>
-											</view>
-										</view>
-										<view v-else>
-											<text class="label"
-												>每分钟降</text
-											>
-											<view 
-												class="number_warp"
-												:class="item.status==0 ? 'end' : item.status==1 ? 'not_start' : ''"
-											>
-												<text class="price_before ali_font_bold"
-													>￥</text
-												>
-												<text class="price_num ali_font_bold"
-													>{{ item.priceDeclineRate.int }}</text
-												>
-												<text class="price_after ali_font_bold"
-													>{{ item.priceDeclineRate.decimals }}</text
-												>
+													<text class="price_before ali_font_bold"
+														>￥</text
+													>
+													<text class="price_num ali_font_bold"
+														>{{ good.priceDeclineRate.int }}</text
+													>
+													<text class="price_after ali_font_bold"
+														>{{ good.priceDeclineRate.decimals }}</text
+													>
+												</view>
 											</view>
 										</view>
 									</view>
-								</view>
-								
-								<!-- test -->
-								<view class="btn_wrap" v-if="index == 6">
-									<image 
-										mode="heightFix" 
-										src="../../../image/btn_start.png" 
-										@tap.stop.prevent="handleJoin(item, 'preview')"
-									/>
-								</view>
+									
+									<!-- test -->
+									<view class="btn_wrap" v-if="gindex == 6">
+										<image 
+											mode="heightFix" 
+											src="../../../image/btn_start.png" 
+											@tap.stop.prevent="handleJoin(good, 'preview')"
+										/>
+									</view>
 
-								<view class="btn_wrap" v-else>
-									<!-- 
-										status 0 已结束  返场订阅 
-										status 1 未开始  预约抢购 
-										即将开始 或者 进行中 
-									-->
-									<!-- 已结束 并且 已订阅 -->
-									<image 
-										v-if="item.status == 0 && store.state.goodsDataState.orderedGoods.includes(item.goodsId)" 
-										mode="heightFix" 
-										src="../../../image/btn_subscribe_2.png" 
-									/>
-									<!-- 已结束 返场订阅 -->
-									<image 
-										v-else-if="item.status == 0" 
-										mode="heightFix" 
-										src="../../../image/btn_subscribe_3.png" 
-										@tap.stop.prevent="handleGoBackSubscription(item.goodsId)"
-									/>
-									<!-- 未开始 并且 已预约 -->
-									<image 
-										v-else-if="item.status == 1 && store.state.goodsDataState.orderedAuctions.includes(item.id)" 
-										mode="heightFix" 
-										src="../../../image/btn_subscribe_1.png" 
-									/>
-									<!-- 未开始 预约抢购 -->
-									<image 
-										v-else-if="item.status == 1" 
-										mode="heightFix" 
-										src="../../../image/btn_subscribe_1.png" 
-										@tap.stop.prevent="handleSubscription(item.id)"
-									/>
-									<!-- 马上参加 -->
-									<image 
-										v-else
-										mode="heightFix" 
-										src="../../../image/btn_start.png" 
-										@tap.stop.prevent="handleJoin(item)"
-									/>
-								</view>
+									<view class="btn_wrap" v-else>
+										<!-- 
+											status 0 已结束  返场订阅 
+											status 1 未开始  预约抢购 
+											即将开始 或者 进行中 
+										-->
+										<!-- 已结束 并且 已订阅 -->
+										<image 
+											v-if="good.status == 0 && store.state.goodsDataState.orderedGoods.includes(good.goodsId)" 
+											mode="heightFix" 
+											src="../../../image/btn_subscribe_2.png" 
+										/>
+										<!-- 已结束 返场订阅 -->
+										<image 
+											v-else-if="good.status == 0" 
+											mode="heightFix" 
+											src="../../../image/btn_subscribe_3.png" 
+											@tap.stop.prevent="handleGoBackSubscription(good.goodsId)"
+										/>
+										<!-- 未开始 并且 已预约 -->
+										<image 
+											v-else-if="good.status == 1 && store.state.goodsDataState.orderedAuctions.includes(good.id)" 
+											mode="heightFix" 
+											src="../../../image/btn_subscribe_1.png" 
+										/>
+										<!-- 未开始 预约抢购 -->
+										<image 
+											v-else-if="good.status == 1" 
+											mode="heightFix" 
+											src="../../../image/btn_subscribe_1.png" 
+											@tap.stop.prevent="handleSubscription(good.id)"
+										/>
+										<!-- 马上参加 -->
+										<image 
+											v-else
+											mode="heightFix" 
+											src="../../../image/btn_start.png" 
+											@tap.stop.prevent="handleJoin(good)"
+										/>
+									</view>
 
+								</view>
 							</view>
 						</view>
 					</view>
+					
 				</view>
-				
 			</view>
+			
 		</view>
 
-		<view
+		<!-- <view
 			class="goods_item goods_text_item clearfix"
 			v-if="goodsList.length"
 		>
@@ -231,9 +239,9 @@
 					<text class="time_text">运营小姐姐正在加班筹划新活动...先从上面选一个参加吧！</text>
 				</view>				
 			</view>
-		</view>
+		</view> -->
 
-		<!-- <view v-if="goodsLoading" class="goods_loading">加载中...</view> -->
+		<view v-if="goodsLoading" class="goods_loading">加载中...</view>
 
 		<!-- 商品详情 -->
 		<goods-detail 
@@ -265,14 +273,16 @@ export default {
 			})
 		}, 100);
 	},
-
 	
 	setup(props, { emit }) {
 		const goodsDetail = ref(null)
 		const { findGoodsState, formatTime, priceFormat } = mixin()
 		const store = useStore()
-
+	
 		const { proxy } = getCurrentInstance()
+
+		const accountInfo = wx.getAccountInfoSync()
+		const env = accountInfo .miniProgram.envVersion
 
 		//商品列表 加载更多
 		const goodsDataPage = computed(() => {
@@ -377,17 +387,19 @@ export default {
 			// }else if(type == 'bottom' && data.length == store.state.goodsTotalCount){
 			// 	return
 			// }
+
+			let last = data[data.length - 1]
+
 			proxy.$socket.socketSendMessage({
 				id: socketId.getGoodsList,
-				baseIndex: type == 'top' ? data[0].index : data[data.length-1].index,   // 基于哪个索引请求
+				baseIndex: type == 'top' ? data[0][0].index : last[last.length - 1].index,   // 基于哪个索引请求
 				count: type == 'top' ? -state.pageNum : state.pageNum       // 请求多少个抢购，根据一屏显示的内容来，别一次太多，负数向前，正数向后
 			})
-			// state.goodsLoading = true
+			state.goodsLoading = true
 		}
 
 		//返回的抢购商品数据
 		const goodsPage = data => {
-			// test
 			// state.goodsList = []
 
 			let type = 'top'
@@ -401,13 +413,16 @@ export default {
 				state.goodsIds.push(item.index)
 			})
 			
-			if(!state.goodsList[0] || data[0].index > state.goodsList[0].index){
+			//@@ 抢购列表优化   concat 要改成  list[page]:datalist
+			if(!state.goodsList[0] || data[0].index > state.goodsList[state.goodsList.length - 1][0].index){
 				//滑动到底部加载的数据
-				state.goodsList = state.goodsList.concat(data)
+				// state.goodsList = state.goodsList.concat(data)
+				state.goodsList.push(data)
 				type = 'bottom'
 			}else{
 				//滑动到顶部加载的数据
-				state.goodsList = data.concat(state.goodsList)
+				// state.goodsList = data.concat(state.goodsList)
+				state.goodsList.unshift(data)
 				type = 'top'
 				//设置滚动条位置
 				emit('setScrollTop', data[data.length-1].index)
@@ -415,6 +430,7 @@ export default {
 
 			//存储抢购列表全部数据
 			store.dispatch('setAllGoodsList', { type, data })
+			joinLastPanicBuy()
 		}
 
 		//抢购状态改变
@@ -427,6 +443,17 @@ export default {
 			})
 		}
 
+
+		//暂时用 *****  扫码后进入 加载完抢购列表  自动参加最后一个抢购
+		const joinLastPanicBuy = () => {
+			console.log('自动参加最后一个抢购----->', env)
+			if(!state.joinState && env != 'develop'){
+				state.joinState = true
+				wx.navigateTo({
+					url: `./buyer/buyer?id=${state.goodsList[state.goodsList.length-1].id}`
+				})
+			}
+		}
 		
 		const state = reactive({
 			dataLoading: false,     //防止多次请求  2秒钟内不再请求
@@ -440,7 +467,8 @@ export default {
 			handleDetail,
 			handleGoodsLoadMore,
 			goodsDetail,
-			store
+			store,
+			joinState: false,
 		})
 
 		//goodsDataPage  列表滑到顶部 或 底部 加载更多的数据
@@ -457,6 +485,7 @@ export default {
 				if(state.goodsIds.includes(newData[0].index)){
 					return
 				}
+				// newData = newData.splice(0, 10)
 				goodsPage(newData)
 				store.state.clearGoodsList = false
 			}
@@ -496,7 +525,11 @@ export default {
     }
     
     .goods_item{
-        height: 223px;
+        // height: 223px;
+
+		.goods_item_page{
+			height: 223px;
+		}
         
         &.goods_item_active{
             .goods_timeline{
@@ -605,10 +638,6 @@ export default {
                                 width: 126px;
                                 height: 126px;
                                 margin-top: -63px;
-                                image{
-                                    width: 126px;
-                                    height: 126px;
-                                }
                             }
 
                             .goods_right_text{

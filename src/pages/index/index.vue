@@ -29,6 +29,7 @@
 				@scrolltoupper="handleToUpper"
 				@scrolltolower="handleToLower"
 			>
+
 				<!-- banner -->
 				<banner id="banner" :showBanner="showBanner" />
 
@@ -46,9 +47,9 @@
 	</view>
 
 	<!-- 导航栏 -->
-	<custom-tab-bar 
+	<!-- <custom-tab-bar 
 		@backToTop="backToTop"
-		page="home" />
+		page="home" /> -->
 		
 </template>
 
@@ -64,6 +65,18 @@ import { useStore } from 'vuex'
 
 export default {
 	setup(props) {
+		//设置自定义tabbar 索引
+		getCurrentPages()[0].getTabBar().setData({
+			selected: 0
+		})
+
+		//监听点击回到顶部
+		var subscriber = new window.qbian.Subscriber();
+		subscriber.subscrib('backTop', function(data) {
+			methods.backToTop()
+		})
+
+
 		const store = useStore()
 		const goodsList = ref(null)
 		const loginDialog = ref(null)
@@ -74,6 +87,7 @@ export default {
 		const mainHeight = computed(() => {
 			return wx.getSystemInfoSync().windowHeight - store.state.headerHeight
 		})
+
 
 		//显示登录窗口
 		const showLogin = () => {
@@ -128,9 +142,9 @@ export default {
 
 				//显示回到顶部
 				if(s > 0){
-					store.dispatch('setShowGoTopBtn', true)
+					methods.setIconIsBackTop(true)
 				}else{
-					store.dispatch('setShowGoTopBtn', false)
+					methods.setIconIsBackTop(false)
 				}
 			},
 
@@ -138,7 +152,7 @@ export default {
 			handleToUpper(){
 				console.log('到顶部了')
 				// state.bannerTop = 0;
-				store.dispatch('setShowGoTopBtn', false)
+				methods.setIconIsBackTop(false)
 				state.goodsList.handleGoodsLoadMore('top')
 			},
 
@@ -146,17 +160,6 @@ export default {
 			handleToLower(){
 				state.goodsList.handleGoodsLoadMore('bottom')
 				console.log('到底部了')
-			},
-
-			//点击回到顶部
-			backToTop(){
-				state.scrollTop = state.goodsScrollTop;
-				nextTick(() => {
-					state.scrollTop = 0;
-					state.goodsScrollTop = 0;
-					state.bannerTop = 0;
-					store.dispatch('setShowGoTopBtn', false)
-				})
 			},
 
 			//往上加载更多抢购数据后  设置滚动条位置
@@ -169,6 +172,24 @@ export default {
 				setTimeout(() => {
 					state.scrollStop = false
 				}, 500)
+			},
+
+			//点击回到顶部
+			backToTop(){
+				state.scrollTop = state.goodsScrollTop;
+				nextTick(() => {
+					state.scrollTop = 0;
+					state.goodsScrollTop = 0;
+					state.bannerTop = 0;
+					methods.setIconIsBackTop(false)
+				})
+			},
+			
+			//设置自定义tabbar抢购图标是否显示 回到顶部
+			setIconIsBackTop(state){
+				getCurrentPages()[0].getTabBar().setData({
+					showGoTopBtn: state
+				})
 			}
 
 		}
@@ -189,7 +210,7 @@ export default {
 			...methods,
 			scrollStop: false,
 			showGoodsDetail,
-			scrollIntoView: null,
+			scrollIntoView: null
 		});
 
 		return toRefs(state);

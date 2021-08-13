@@ -25,6 +25,12 @@ image{
     display: inline-block;    
     vertical-align: middle;
 }
+image[mode='heightFix']{
+    width: auto;
+}
+image[mode='widthFix']{
+    height: auto;
+}
 
 .main{
     height: calc(100% - 88px);
@@ -220,7 +226,7 @@ image{
         display: flex;
         padding-left: 12px;
 
-        image{
+        image, .goods_cover{
             width: 118px;
             height: 118px;
             margin-top: -59px;

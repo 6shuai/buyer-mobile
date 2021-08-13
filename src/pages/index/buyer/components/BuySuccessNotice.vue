@@ -127,7 +127,7 @@ export default {
         top: 0px
     }
     .bullet_animation{
-        animation: right2left 10s linear both;
+        animation: right2left 5s linear both;
     }
 
     @keyframes right2left {

@@ -89,7 +89,7 @@
     </view>
 
     <!-- 自定义导航栏 -->
-    <custom-tab-bar page="user" />
+    <!-- <custom-tab-bar page="user" /> -->
 
 </template>
 
@@ -102,6 +102,9 @@ import { useStore } from "vuex"
 
 export default {
     setup(props) {
+        getCurrentPages()[0].getTabBar().setData({
+			selected: 2
+		})
         const store = useStore()
         const loginData = wx.getStorageSync('loginData') ? JSON.parse(wx.getStorageSync('loginData')) : {}
         const headHeight = computed(() => {

@@ -1,5 +1,8 @@
+
 Component({
   data: {
+    showTabBar: true,
+    showGoTopBtn: false, 
     selected: 0,
     color: "#7A7E83",
     selectedColor: "#3cc51f",
@@ -29,9 +32,13 @@ Component({
       // this.setData({
       //   selected: data.index
       // })
+      
       wx.switchTab({url})
+    },
 
-      console.log(data.index)
+    backGotop(){
+      var publisher = new window.qbian.Publisher();
+      publisher.publish('backTop');
     }
   }
 })

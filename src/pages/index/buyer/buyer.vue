@@ -174,8 +174,7 @@
                 ref="panicBuyRule"
                 :data="resData"
             ></how-to-play>
-
-            
+     
         </view>
 
 	</view>
